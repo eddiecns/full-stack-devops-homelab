@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+{% endblock %}
+
+{# Override base.html's container wrapper #}
+{% block content_wrapper %}
+<div class="row g-0">
+    <!-- Sidebar -->
+    <div class="sidebar vendor">
+        {% block vendor_sidebar %}
+        <h6 class="px-3 mt-3 mb-2 text-muted text-uppercase small">Main</h6>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'vendor_dash' %}">
+                    <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'product_list' %}">
+                    <i class="bi bi-box-seam me-2"></i> Product List
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'inventory' %}">
+                    <i class="bi bi-archive me-2"></i> Inventory
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'vendor_orders' %}">
+                    <i class="bi bi-cart-check me-2"></i> Pending Orders
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'vendor_order_history' %}">
+                    <i class="bi bi-clock-history me-2"></i> Order History
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'customer_list' %}">
+                    <i class="bi bi-people me-2"></i> Customer List
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'sales' %}">
+                    <i class="bi bi-cash-coin me-2"></i> Sales
+                </a>
+            </li>
+        </ul>
+
+        <h6 class="px-3 mt-4 mb-2 text-muted text-uppercase small">Maintenance</h6>
+        <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'reports' %}">
+                    <i class="bi bi-graph-up-arrow me-2"></i> Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'vendor_profile' %}">
+                    <i class="bi bi-person-badge me-2"></i> Vendor Profile
+                </a>
+            </li>
+
+            {# Admin only - Activity Logs #}
+            {% if request.user.is_staff or request.user.is_superuser %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'vendor_activity_logs' %}">
+                    <i class="bi bi-list-check me-2"></i> Activity Logs
+                </a>
+            </li>
+            {% endif %}
+
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'settings' %}">
+                    <i class="bi bi-gear me-2"></i> Settings
+                </a>
+            </li>
+        </ul>
+        {% endblock %}
+    </div>
+
+    <!-- Page Content -->
+    <div class="content-area vendor">
+        <div class="container-fluid px-4">   {# add container wrapper #}
+            {% block vendor_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

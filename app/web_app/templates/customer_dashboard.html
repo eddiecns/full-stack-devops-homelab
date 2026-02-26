@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Customer Dashboard | Nyarie's Bakery {% endblock %}
+
+{% block sidebar %}
+<ul class="nav flex-column">
+    <li class="nav-item">
+        <a class="nav-link active" href="{% url 'customer_dashboard' %}">
+            <i class="bi bi-house-door"></i> Dashboard
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'cart' %}">
+            <i class="bi bi-cart"></i> My Cart
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'orders' %}">
+            <i class="bi bi-bag-check"></i> Orders
+        </a>
+    </li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Welcome back, {{ user.username }}!</h1>
+
+<h3>Your Recent Orders</h3>
+{% if orders %}
+    <ul class="list-group">
+        {% for order in orders %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Order #{{ order.id }} - {{ order.status }}
+                <span class="badge bg-primary">R{{ order.total_price }}</span>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p class="text-muted">You don’t have any recent orders yet.</p>
+{% endif %}
+{% endblock %}

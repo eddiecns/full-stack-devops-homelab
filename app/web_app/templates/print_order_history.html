@@ -1,0 +1,168 @@
+{% extends "base_sidebar.html" %}
+{% load static %}
+{% load tz %}
+
+{% block title %}Print & Download{% endblock %}
+
+{% block sidebar %}
+
+<!-- Contact page specific CSS -->
+<link rel="stylesheet" href="{% static 'css/customer.css' %}">
+
+<h6 class="sidebar-section-title">My Account</h6>
+<ul class="nav flex-column">
+    <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}"><i class="bi bi-person-circle me-2"></i> Profile Info</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'customer_orders' %}"><i class="bi bi-cart-check me-2"></i>Active Orders</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'customer_order_history' %}"><i class="bi bi-clock-history me-2"></i> Order History</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'cart' %}"><i class="bi bi-bag me-2"></i> Cart</a></li>
+</ul>
+
+<h6 class="sidebar-section-title">Navigation</h6>
+<ul class="nav flex-column mb-2">
+    <li class="nav-item"><a class="nav-link" href="{% url 'index' %}"><i class="bi bi-house me-2"></i> Home</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'about' %}"><i class="bi bi-info-circle me-2"></i> About</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}"><i class="bi bi-envelope me-2"></i> Contact</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+<!-- Buttons (hidden when printing) -->
+<div class="d-flex justify-content-end mb-3 no-print">
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm me-2">
+        <i class="bi bi-printer"></i> Print
+    </button>
+    <a href="{% url 'download_customer_order_history' %}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-download"></i> Download
+    </a>
+</div>
+
+<!-- Printable Area -->
+<div class="printable-area p-4 border">
+
+    <!-- Company Header -->
+    <div class="d-flex align-items-center mb-4">
+        <img src="{% static 'images/logo.png' %}" alt="Nyarie's Bakery Logo" style="height: 80px; margin-right: 15px;">
+        <div class="text-center mb-4">
+            <h1 class="mb-0"><strong>Nyarie's Bakery</strong></h1>
+            <small>You Buy, We Serve</small>
+        </div>
+
+    </div>
+
+    <div class="text-center mb-4">
+        <div>
+            <h3><strong>Order History Report</strong></h3>
+        </div>
+    </div>
+
+    <!-- Customer Info -->
+    <div class="mb-4">
+        <h6><strong>Customer Details</strong></h6>
+        <p>
+            <strong>Name:</strong> {{ user.get_full_name }} <br>
+            <strong>Email:</strong> {{ user.email }} <br>
+            {% if user.profile.phone %}
+            <strong>Phone:</strong> {{ user.profile.phone }} <br>
+            {% endif %}
+            {% if user.profile.address %}
+            <strong>Address:</strong> {{ user.profile.address }}
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Completed Orders -->
+    <h4 class="mt-4">✅ Completed Orders</h4>
+    {% if completed_orders %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Delivery Address</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in completed_orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>R{{ order.total_price }}</td>
+                        <td>{{ order.delivery_address }}</td>
+                        <td><span class="badge bg-success">Paid</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">No completed orders.</p>
+    {% endif %}
+
+    <!-- Cancelled Orders -->
+    <h4 class="mt-4">❌ Cancelled Orders</h4>
+    {% if cancelled_orders %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Delivery Address</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in cancelled_orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>R{{ order.total_price }}</td>
+                        <td>{{ order.delivery_address }}</td>
+                        <td><span class="badge bg-danger">Cancelled</span></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="text-muted">No cancelled orders.</p>
+    {% endif %}
+
+    <!-- Footer / Timestamp -->
+    <p class="mt-4"><small>Report generated on: {% now "Y-m-d H:i" %}</small></p>
+
+</div>
+
+<!-- Print-specific CSS -->
+<style>
+@media print {
+    body * {
+        visibility: hidden; /* hide everything */
+    }
+    .printable-area, .printable-area * {
+        visibility: visible; /* show only printable area */
+    }
+    .printable-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    .no-print {
+        display: none !important;
+    }
+    table {
+        border-collapse: collapse !important;
+        width: 100%;
+    }
+    table, th, td {
+        border: 1px solid black !important;
+    }
+    th, td {
+        padding: 8px !important;
+        text-align: left;
+    }
+}
+</style>
+{% endblock %}
+

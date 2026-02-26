@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% block title %}{{ category.name }}{% endblock %}
+{% load static %}
+
+{% block content %}
+<h1 class="text-center mb-4">{{ category.name }}</h1>
+
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+
+<style>
+.product-img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    object-position: center;
+}
+
+@media (max-width: 768px) {
+    .product-img {
+        height: 150px;
+    }
+}
+
+/* Style for disabled button */
+.btn-disabled-custom {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+</style>
+
+<div id="snackbar" class="success">
+    <span id="snackbar-msg">Product added to cart!</span>
+    <span class="close-btn" onclick="closeSnackbar()">&times;</span>
+</div>
+
+
+<div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-4">
+    {% for product in products %}
+    <div class="col">
+        <div class="card h-100 shadow-sm">
+            <img src="{{ product.image.url }}" class="card-img-top product-img" alt="{{ product.name }}">
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text text-truncate">{{ product.description }}</p>
+                <p class="fw-bold">R{{ product.price|floatformat:2 }}</p>
+
+                {% if user.is_authenticated and user.user_type in 'admin,vendor' %}
+                    <!-- Disabled button for admin/vendor -->
+                    <button type="button" class="btn btn-disabled-custom mt-auto" disabled>
+                        {% if user.user_type == 'vendor' %}
+                            Vendors View Only
+                        {% else %}
+                            Admin View Only
+                        {% endif %}
+                    </button>
+                {% else %}
+                    <!-- Active Add to Cart button for customers and anonymous users -->
+                    <form method="post" action="{% url 'add_to_cart' product.id %}" data-action="{% url 'add_to_cart' product.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary mt-auto">Add to Cart</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% empty %}
+        <p>No products found in this category.</p>
+    {% endfor %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form[data-action]');
+    let snackbarTimeout;
+
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const url = this.dataset.action;
+            const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showSnackbar(data.message, 'error');
+                } else {
+                    showSnackbar(data.message, 'success');
+
+                    // ✅ Update cart badge using the proper method
+                    updateCartBadge(data.cart_count);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showSnackbar('Failed to add to cart.', 'error');
+            });
+        });
+    });
+
+    function showSnackbar(message, type='success') {
+        const snackbar = document.getElementById('snackbar');
+        const msgSpan = document.getElementById('snackbar-msg');
+
+        if (snackbarTimeout) clearTimeout(snackbarTimeout);
+
+        snackbar.className = type;
+        msgSpan.textContent = message;
+        snackbar.style.display = 'block';
+        snackbar.style.opacity = '1';
+        snackbar.style.transform = 'translateY(0)';
+
+        snackbarTimeout = setTimeout(() => {
+            snackbar.style.opacity = '0';
+            snackbar.style.transform = 'translateY(20px)';
+            setTimeout(() => { snackbar.style.display = 'none'; }, 500);
+        }, 3000);
+    }
+
+    window.closeSnackbar = function() {
+        const snackbar = document.getElementById('snackbar');
+        snackbar.style.opacity = '0';
+        snackbar.style.transform = 'translateY(20px)';
+        setTimeout(() => { snackbar.style.display = 'none'; }, 500);
+    }
+
+    function updateCartBadge(count) {
+        // Use the cart-badge ID we set up in base.html
+        const badge = document.getElementById('cart-badge');
+
+        if (badge) {
+            badge.textContent = count;
+
+            // Show or hide badge based on count
+            if (count > 0) {
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+    }
+});
+</script>
+
+
+{% endblock %}

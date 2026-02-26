@@ -1,0 +1,64 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Edit Vendor - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-pencil me-2"></i>Edit Vendor</h2>
+    <p>Update vendor and profile details</p>
+</div>
+
+<div class="admin-card">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label>Username</label>
+                {{ form.username }}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Email</label>
+                {{ form.email }}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>First Name</label>
+                {{ form.first_name }}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Company Name</label>
+                {{ form.company_name }}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Surname</label>
+                {{ form.surname }}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Vendor ID</label>
+                {{ form.vendor_id }}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Phone</label>
+                {{ form.phone }}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label>Mobile</label>
+                {{ form.mobile }}
+            </div>
+            <div class="col-md-12 mb-3">
+                <label>Delivery Address</label>
+                {{ form.delivery_address }}
+            </div>
+            <div class="col-md-12 mb-3 form-check">
+                {{ form.is_active }}
+                <label class="form-check-label">Active</label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-admin-primary">Save Changes</button>
+        <a href="{% url 'admin_vendors' %}" class="btn btn-admin-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}

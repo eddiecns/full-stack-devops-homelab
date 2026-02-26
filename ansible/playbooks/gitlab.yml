@@ -1,0 +1,48 @@
+---
+- name: Install and configure GitLab
+  hosts: gitlab
+  become: true
+
+  vars:
+    gitlab_edition: gitlab-ce
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - curl
+          - openssh-server
+          - ca-certificates
+          - tzdata
+          - perl
+          - postfix
+          - gnupg
+        state: present
+
+    - name: Add GitLab repository GPG key
+      apt_key:
+        url: https://packages.gitlab.com/gitlab/gitlab-ce/gpgkey
+        state: present
+
+    - name: Add GitLab repository
+      apt_repository:
+        repo: "deb https://packages.gitlab.com/gitlab/gitlab-ce/ubuntu/ {{ ansible_distribution_release }} main"
+        state: present
+        filename: gitlab_gitlab-ce
+
+    - name: Install GitLab
+      apt:
+        name: "{{ gitlab_edition }}"
+        state: latest
+        update_cache: yes
+
+    - name: Reconfigure GitLab
+      command: gitlab-ctl reconfigure
+      args:
+        creates: /etc/gitlab/gitlab.rb

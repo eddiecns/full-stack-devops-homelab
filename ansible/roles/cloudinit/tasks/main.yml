@@ -1,0 +1,2 @@
+- name: Clean cloud-init
+  command: cloud-init clean

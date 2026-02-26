@@ -1,0 +1,30 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Edit Order - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-pencil me-2"></i>Edit Order</h2>
+    <p>Update details for Order #{{ order.id }}</p>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div class="admin-card p-4 mt-3">
+        {% for field in form %}
+        <div class="mb-3">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field|add_class:"form-control" }}
+            {{ field.errors }}
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-admin-primary">Save Changes</button>
+        <a href="{% url 'admin_all_orders' %}" class="btn btn-admin-secondary ms-2">Cancel</a>
+    </div>
+</form>
+{% endblock %}

@@ -1,0 +1,185 @@
+{% load static %}
+{% load tz %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Nyarie's Bakery{% endblock %}</title>
+
+    <!-- Bootstrap & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand-lg shadow-sm">
+    <div class="container">
+        <!-- Logo + Brand -->
+        <a class="navbar-brand d-flex align-items-center fw-bold" href="{% url 'index' %}">
+            <img src="{% static 'images/logo.png' %}" alt="Nyarie's Bakery Logo" style="height: 90px; margin-right: 10px;">
+            Nyarie's Bakery
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+
+                <!-- Search form -->
+                <form class="d-flex me-auto" action="{% url 'product_search' %}" method="get">
+                    <input class="form-control me-2" type="search" name="q" placeholder="Search products..." value="{{ request.GET.q|default:'' }}">
+                    <button class="btn btn-outline-success" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+
+                <!-- Categories Dropdown -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Menu Items
+                    </a>
+                    <ul class="dropdown-menu">
+                        {% for category in categories %}
+                            <li><a class="dropdown-item" href="{% url 'category_detail' category.id %}">{{ category.name }}</a></li>
+                        {% empty %}
+                            <li><span class="dropdown-item text-muted">No categories available</span></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+
+                <!-- Normal Nav Items -->
+                <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">About</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}">Contact</a></li>
+
+                {% if user.is_authenticated %}
+                    <!-- Cart - Only show for customers -->
+                    {% if user.user_type == "customer" %}
+                        <li class="nav-item">
+                            <a class="nav-link position-relative" href="{% url 'cart' %}">
+                                <i class="bi bi-cart"></i> Cart
+                                {% if cart_item_count and cart_item_count > 0 %}
+                                    <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ cart_item_count }}
+                                        <span class="visually-hidden">items in cart</span>
+                                    </span>
+                                {% else %}
+                                    <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="display: none;">
+                                        0
+                                        <span class="visually-hidden">items in cart</span>
+                                    </span>
+                                {% endif %}
+                            </a>
+                        </li>
+                    {% elif user.user_type == "vendor" %}
+                        <!-- Dashboard link for vendors -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'vendor_dash' %}">
+                                <i class="bi bi-speedometer2"></i> Dashboard
+                            </a>
+                        </li>
+                    {% elif user.user_type == "admin" %}
+                        <!-- Dashboard link for admins -->
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'admin_dashboard' %}">
+                                <i class="bi bi-shield-check"></i> Admin Dashboard
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    <!-- User Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle me-1"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            {% if user.user_type == "customer" %}
+                                <!-- Customer menu items -->
+                                <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="bi bi-person"></i> My Account</a></li>
+                                <li><a class="dropdown-item" href="{% url 'customer_orders' %}"><i class="bi bi-bag"></i> My Orders</a></li>
+                                <li><a class="dropdown-item" href="{% url 'customer_order_history' %}"><i class="bi bi-clock-history"></i> Order History</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                            {% elif user.user_type == "vendor" %}
+                                <!-- Vendor menu items -->
+                                <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="bi bi-person"></i> My Account</a></li>
+                                <li><a class="dropdown-item" href="{% url 'vendor_orders' %}"><i class="bi bi-bag-check"></i> Vendor Orders</a></li>
+                                <li><a class="dropdown-item" href="{% url 'vendor_reports' %}"><i class="bi bi-graph-up"></i> Reports</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+
+                            <!-- Logout for all users -->
+                            <li>
+                                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+
+                {% else %}
+                    <!-- Guest users see login/register -->
+                    <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Register</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+{# Wrapper block - default container for normal pages #}
+{% block content_wrapper %}
+<div class="container mt-4">
+    {% block content %}{% endblock %}
+</div>
+{% endblock %}
+
+<!-- Footer -->
+<footer class="text-center text-lg-start border-top mt-5">
+    <div class="container p-4">
+        <div class="row text-center text-md-start align-items-center">
+            <!-- Logo Column -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <img src="{% static 'images/logo.png' %}" alt="Nyarie's Bakery Logo" class="img-fluid" style="max-width: 150px;">
+            </div>
+            <!-- Market Info -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5 class="fw-bold">Nyarie's Bakery</h5>
+                <p>Your trusted online store for quality products and great deals.</p>
+            </div>
+            <!-- Quick Links -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5 class="fw-bold">Quick Links</h5>
+                <ul class="list-unstyled mb-0">
+                    <li><a href="{% url 'about' %}" class="text-white text-decoration-none">About Us</a></li>
+                    <li><a href="{% url 'contact' %}" class="text-white text-decoration-none">Contact</a></li>
+                    <li><a href="{% url 'privacy_policy' %}" class="text-white text-decoration-none">Privacy Policy</a></li>
+                    <li><a href="{% url 'terms_and_conditions' %}" class="text-white text-decoration-none">Terms & Conditions</a></li>
+                </ul>
+            </div>
+            <!-- Social -->
+            <div class="col-lg-3 col-md-6 mb-4">
+                <h5 class="fw-bold">Follow Us</h5>
+                <a href="#" class="text-white me-3"><i class="bi bi-facebook"></i></a>
+                <a href="#" class="text-white me-3"><i class="bi bi-twitter"></i></a>
+                <a href="#" class="text-white me-3"><i class="bi bi-instagram"></i></a>
+                <a href="#" class="text-white"><i class="bi bi-linkedin"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="text-center p-3 bg-dark text-white">
+        © {% now "Y" %} Nyarie's Bakery | All Rights Reserved | Site by eComputer Network Solutions
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

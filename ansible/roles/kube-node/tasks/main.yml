@@ -1,0 +1,20 @@
+---
+- name: Wait until join command is available
+  wait_for:
+    path: "/tmp/kubeadm_join_cmd.sh"
+    state: present
+    timeout: 300
+  delegate_to: "{{ groups['kube_master'][0] }}"
+
+- name: Fetch join command from master
+  fetch:
+    src: /tmp/kubeadm_join_cmd.sh
+    dest: /tmp/kubeadm_join_cmd_{{ inventory_hostname }}.sh
+    flat: yes
+    fail_on_missing: yes
+  delegate_to: k8s_master
+
+- name: Run kubeadm join on worker
+  shell: bash /tmp/kubeadm_join_cmd_{{ inventory_hostname }}.sh
+  args:
+    creates: /etc/kubernetes/kubelet.conf

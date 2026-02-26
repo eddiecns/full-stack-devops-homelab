@@ -1,0 +1,18 @@
+{% extends "admins/base_admin.html" %}
+
+{% block title %}Delete Order - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-trash me-2"></i>Delete Order</h2>
+    <p>Are you sure you want to delete Order #{{ order.id }}?</p>
+</div>
+
+<div class="admin-card p-4 mt-3 text-center">
+    <form method="post" action="{% url 'admin_order_delete' order.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'admin_all_orders' %}" class="btn btn-admin-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}

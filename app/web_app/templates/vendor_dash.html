@@ -1,0 +1,149 @@
+{% extends "base_vendor.html" %}
+{% load static %}
+
+{% block title %}Vendor Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+{% endblock %}
+
+{% block vendor_content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-speedometer2 me-2"></i> Vendor Dashboard</h2>
+    <p>Manage your bakery business and monitor your performance</p>
+</div>
+
+<div class="row row-cols-1 row-cols-md-4 g-4">
+  <!-- My Products -->
+  <div class="col">
+    <a href="{% url 'product_list' %}" class="text-decoration-none">
+      <div class="card shadow-sm h-100 text-center">
+        <div class="card-body">
+          <i class="bi bi-box-seam display-4 text-primary"></i>
+          <h5 class="card-title mt-3">My Products</h5>
+          <p class="text-muted small">Manage your product listings</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Add Product -->
+  <div class="col">
+    <a href="{% url 'add_product' %}" class="text-decoration-none">
+      <div class="card shadow-sm h-100 text-center">
+        <div class="card-body">
+          <i class="bi bi-plus-circle display-4 text-success"></i>
+          <h5 class="card-title mt-3">Add Product</h5>
+          <p class="text-muted small">Create a new product</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Orders -->
+  <div class="col">
+    <a href="{% url 'vendor_orders' %}" class="text-decoration-none">
+      <div class="card shadow-sm h-100 text-center">
+        <div class="card-body">
+          <i class="bi bi-receipt display-4 text-warning"></i>
+          <h5 class="card-title mt-3">Orders</h5>
+          <p class="text-muted small">View and manage orders</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Customers -->
+  <div class="col">
+    <a href="{% url 'customer_list' %}" class="text-decoration-none">
+      <div class="card shadow-sm h-100 text-center">
+        <div class="card-body">
+          <i class="bi bi-people display-4 text-info"></i>
+          <h5 class="card-title mt-3">Customers</h5>
+          <p class="text-muted small">See your customer base</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Inventory -->
+  <div class="col">
+    <a href="{% url 'inventory' %}" class="text-decoration-none">
+      <div class="card shadow-sm h-100 text-center">
+        <div class="card-body">
+          <i class="bi bi-boxes display-4 text-secondary"></i>
+          <h5 class="card-title mt-3">Inventory</h5>
+          <p class="text-muted small">Track stock levels</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Sales -->
+  <div class="col">
+    <a href="{% url 'sales' %}" class="text-decoration-none">
+      <div class="card shadow-sm h-100 text-center">
+        <div class="card-body">
+          <i class="bi bi-cash-coin display-4 text-success"></i>
+          <h5 class="card-title mt-3">Sales</h5>
+          <p class="text-muted small">Sales performance overview</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Reports -->
+  <div class="col">
+    <a href="{% url 'reports' %}" class="text-decoration-none">
+      <div class="card shadow-sm h-100 text-center">
+        <div class="card-body">
+          <i class="bi bi-bar-chart display-4 text-danger"></i>
+          <h5 class="card-title mt-3">Reports</h5>
+          <p class="text-muted small">Download or print reports</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Profile -->
+  <div class="col">
+    <a href="{% url 'profile' %}" class="text-decoration-none">
+      <div class="card shadow-sm h-100 text-center">
+        <div class="card-body">
+          <i class="bi bi-person-circle display-4 text-dark"></i>
+          <h5 class="card-title mt-3">Profile</h5>
+          <p class="text-muted small">Manage your account</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Activity Logs -->
+  <div class="col">
+    <a href="{% url 'vendor_activity_logs' %}" class="text-decoration-none">
+      <div class="card shadow-sm h-100 text-center">
+        <div class="card-body">
+          <i class="bi bi-list-check display-4 text-primary"></i>
+          <h5 class="card-title mt-3">Activity Logs</h5>
+          <p class="text-muted small">View recent actions</p>
+        </div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Settings Card -->
+    <div class="col6">
+        <a href="{% url 'settings' %}" class="text-decoration-none">
+            <div class="card shadow-sm h-100 text-center">
+                <div class="card-body">
+                    <i class="bi bi-gear display-4 text-primary"></i>
+                    <h5 class="card-title mt-3">Settings</h5>
+                    <p class="text-muted small">Update your preferences</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+---
+- name: Deploy Django app Docker image to all nodes
+  hosts: all
+  become: yes
+  vars:
+    image_name: "{{ image_name | default('django-bakery-app') }}"
+    image_tag: "{{ image_tag | default('latest') }}"
+  tasks:
+    - name: Copy Docker image tar to node
+      copy:
+        src: "/tmp/{{ image_name }}.tar"
+        dest: "/tmp/{{ image_name }}.tar"
+        mode: '0644'
+    
+    - name: Load Docker image on node using containerd
+      block:
+        - name: Check if containerd is available
+          command: which ctr
+          register: ctr_check
+          ignore_errors: yes
+        
+        - name: Import image into containerd (k8s.io namespace)
+          command: ctr -n k8s.io images import /tmp/{{ image_name }}.tar
+          when: ctr_check.rc == 0
+        
+        - name: Fallback - load image with Docker if containerd not available
+          command: docker load -i /tmp/{{ image_name }}.tar
+          when: ctr_check.rc != 0
+    
+    - name: Clean up Docker image tar
+      file:
+        path: "/tmp/{{ image_name }}.tar"
+        state: absent
+
+- name: Apply Kubernetes manifests on master
+  hosts: kube_master
+  become: yes
+  tasks:
+    - name: Deploy app manifests
+      command: kubectl apply -f /ecns_projects/myapp/k8s/

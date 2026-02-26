@@ -1,0 +1,147 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}All Products - Admin{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-header">
+    <h2><i class="bi bi-box-seam me-2"></i>All Products</h2>
+    <p>View and manage all products across all vendors</p>
+</div>
+
+<!-- Filter Options -->
+<div class="admin-chart-container mb-4">
+    <form method="get" class="row g-3">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Search products..." value="{{ request.GET.search }}">
+        </div>
+        <div class="col-md-3">
+            <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <select name="vendor" class="form-select">
+                <option value="">All Vendors</option>
+                {% for vendor in vendors %}
+                    <option value="{{ vendor.id }}" {% if request.GET.vendor == vendor.id|stringformat:"s" %}selected{% endif %}>
+                        {{ vendor.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-admin-primary w-100">
+                <i class="bi bi-funnel me-2"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Products Table -->
+<div class="admin-table">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>Image</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Vendor</th>
+                <th>Price</th>
+                <th>Stock</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;">
+                    {% else %}
+                        <div style="width: 50px; height: 50px; background: #e0e0e0; border-radius: 6px;"></div>
+                    {% endif %}
+                </td>
+                <td>
+                    <strong>{{ product.name }}</strong>
+                    <br>
+                    <small class="text-muted">ID: {{ product.id }}</small>
+                </td>
+                <td><span class="badge bg-info">{{ product.category.name }}</span></td>
+                <td>{{ product.vendor.username }}</td>
+                <td><strong>R{{ product.price|floatformat:2 }}</strong></td>
+                <td>
+                    {% if product.stock_quantity > 10 %}
+                        <span class="badge bg-success">{{ product.stock_quantity }}</span>
+                    {% elif product.stock_quantity > 0 %}
+                        <span class="badge bg-warning">{{ product.stock_quantity }}</span>
+                    {% else %}
+                        <span class="badge bg-danger">Out of Stock</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if product.availability %}
+                        <span class="badge admin-badge active">Active</span>
+                    {% else %}
+                        <span class="badge admin-badge inactive">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="admin-action-icons">
+                        <a href="{% url 'admin_product_detail' product.id %}" class="btn-view" title="View Details">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'admin_product_edit' product.id %}" class="btn-edit" title="Edit Product">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form action="{% url 'admin_product_delete' product.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-delete" title="Delete Product" onclick="return confirm('Are you sure you want to delete this product?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" class="text-center text-muted py-4">No products found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if products.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if products.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ products.previous_page_number }}">Previous</a>
+        </li>
+        {% endif %}
+
+        {% for num in products.paginator.page_range %}
+            <li class="page-item {% if products.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+        {% endfor %}
+
+        {% if products.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ products.next_page_number }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

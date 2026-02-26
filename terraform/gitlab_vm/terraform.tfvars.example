@@ -1,0 +1,3 @@
+pm_api_token_secret = "<your-proxmox-api-token-secret>"
+ssh_public_key      = "<your-ssh-public-key>"
+ssh_password_hash   = "<your-sha512-password-hash>"

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm border-0 rounded-4 p-4">
+        <div class="row g-4">
+            <!-- Product Image -->
+            <div class="col-md-5 text-center">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-fluid rounded" style="max-height: 350px;">
+                {% else %}
+                    <div class="bg-light d-flex align-items-center justify-content-center" style="height:350px;">
+                        <span class="text-muted">No image available</span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Product Details -->
+            <div class="col-md-7">
+                <h2 class="mb-3">{{ product.name }}</h2>
+                <h4 class="text-primary mb-3">R{{ product.price }}</h4>
+
+                <p>{{ product.description|linebreaks }}</p>
+
+                <p>
+                    <strong>Stock:</strong>
+                    {% if product.stock_quantity > 5 %}
+                        <span class="badge bg-success">{{ product.stock_quantity }} in stock</span>
+                    {% elif product.stock_quantity > 0 %}
+                        <span class="badge bg-warning text-dark">{{ product.stock_quantity }} left</span>
+                    {% else %}
+                        <span class="badge bg-danger">Out of stock</span>
+                    {% endif %}
+                </p>
+
+                {% if product.stock_quantity > 0 %}
+                <form method="post" action="{% url 'add_to_cart' product.id %}">
+                    {% csrf_token %}
+                    <div class="mb-3 w-50">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" name="quantity" id="quantity" class="form-control" value="1" min="1" max="{{ product.stock_quantity }}">
+                    </div>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        <i class="bi bi-cart-plus me-2"></i> Add to Cart
+                    </button>
+                </form>
+                {% else %}
+                <button class="btn btn-secondary btn-lg" disabled>
+                    Out of Stock
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

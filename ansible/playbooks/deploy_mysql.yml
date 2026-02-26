@@ -1,0 +1,188 @@
+---
+- name: Deploy MySQL to Kubernetes cluster
+  hosts: kube_master
+  become: yes
+  vars:
+    mysql_root_password: "rootpass"
+    mysql_database: "bake_db"
+    mysql_user: "{{ lookup('env', 'DB_USER') | default('bakery_user', true) }}"
+    mysql_password: "{{ lookup('env', 'DB_PASSWORD') | default('bakery_pass123', true) }}"
+    k8s_manifests_dir: "/tmp/k8s-mysql"
+
+  tasks:
+    - name: Create temporary directory for MySQL manifests
+      file:
+        path: "{{ k8s_manifests_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Create MySQL PersistentVolume manifest
+      copy:
+        dest: "{{ k8s_manifests_dir }}/mysql-pv.yaml"
+        content: |
+          apiVersion: v1
+          kind: PersistentVolume
+          metadata:
+            name: mysql-pv
+            labels:
+              type: local
+          spec:
+            storageClassName: manual
+            capacity:
+              storage: 5Gi
+            accessModes:
+              - ReadWriteOnce
+            hostPath:
+              path: "/mnt/data/mysql"
+              type: DirectoryOrCreate
+
+    - name: Create MySQL Secret manifest
+      copy:
+        dest: "{{ k8s_manifests_dir }}/mysql-secret.yaml"
+        content: |
+          apiVersion: v1
+          kind: Secret
+          metadata:
+            name: mysql-secret
+          type: Opaque
+          stringData:
+            MYSQL_ROOT_PASSWORD: "{{ mysql_root_password }}"
+            MYSQL_USER: "{{ mysql_user }}"
+            MYSQL_PASSWORD: "{{ mysql_password }}"
+
+    - name: Create MySQL PersistentVolumeClaim manifest
+      copy:
+        dest: "{{ k8s_manifests_dir }}/mysql-pvc.yaml"
+        content: |
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+          metadata:
+            name: mysql-pvc
+          spec:
+            storageClassName: manual
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 5Gi
+
+    - name: Create MySQL Deployment manifest
+      copy:
+        dest: "{{ k8s_manifests_dir }}/mysql-deployment.yaml"
+        content: |
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: mysql
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                app: mysql
+            template:
+              metadata:
+                labels:
+                  app: mysql
+              spec:
+                # NodeSelector ensures MySQL runs ONLY on worker03-vm
+                nodeSelector:
+                  mysql-node: "true"
+                containers:
+                  - name: mysql
+                    image: mysql:8.0
+                    args:
+                      - "--default-authentication-plugin=mysql_native_password"
+                    ports:
+                      - containerPort: 3306
+                        name: mysql
+                    env:
+                      - name: MYSQL_ROOT_PASSWORD
+                        valueFrom:
+                          secretKeyRef:
+                            name: mysql-secret
+                            key: MYSQL_ROOT_PASSWORD
+                      - name: MYSQL_DATABASE
+                        value: "{{ mysql_database }}"
+                      - name: MYSQL_USER
+                        valueFrom:
+                          secretKeyRef:
+                            name: mysql-secret
+                            key: MYSQL_USER
+                      - name: MYSQL_PASSWORD
+                        valueFrom:
+                          secretKeyRef:
+                            name: mysql-secret
+                            key: MYSQL_PASSWORD
+                    volumeMounts:
+                      - name: mysql-storage
+                        mountPath: /var/lib/mysql
+                    readinessProbe:
+                      exec:
+                        command:
+                          - bash
+                          - "-c"
+                          - "mysql -h127.0.0.1 -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e 'SELECT 1'"
+                      initialDelaySeconds: 30
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                    livenessProbe:
+                      exec:
+                        command:
+                          - bash
+                          - "-c"
+                          - "mysqladmin ping -h127.0.0.1 -u${MYSQL_USER} -p${MYSQL_PASSWORD}"
+                      initialDelaySeconds: 30
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                volumes:
+                  - name: mysql-storage
+                    persistentVolumeClaim:
+                      claimName: mysql-pvc
+
+    - name: Create MySQL Service manifest
+      copy:
+        dest: "{{ k8s_manifests_dir }}/mysql-service.yaml"
+        content: |
+          apiVersion: v1
+          kind: Service
+          metadata:
+            name: mysql-service
+          spec:
+            selector:
+              app: mysql
+            ports:
+              - port: 3306
+                targetPort: 3306
+                protocol: TCP
+            type: ClusterIP
+
+    - name: Apply MySQL PV
+      command: kubectl apply -f {{ k8s_manifests_dir }}/mysql-pv.yaml
+
+    - name: Apply MySQL Secret
+      command: kubectl apply -f {{ k8s_manifests_dir }}/mysql-secret.yaml
+
+    - name: Apply MySQL PVC
+      command: kubectl apply -f {{ k8s_manifests_dir }}/mysql-pvc.yaml
+
+    - name: Apply MySQL Deployment
+      command: kubectl apply -f {{ k8s_manifests_dir }}/mysql-deployment.yaml
+
+    - name: Apply MySQL Service
+      command: kubectl apply -f {{ k8s_manifests_dir }}/mysql-service.yaml
+
+    - name: Wait for MySQL deployment to be ready
+      command: kubectl rollout status deployment/mysql --timeout=300s
+
+    - name: Get MySQL pod name
+      command: kubectl get pods -l app=mysql -o jsonpath='{.items[0].metadata.name}'
+      register: mysql_pod
+
+    - name: Display MySQL pod status
+      debug:
+        msg: "MySQL pod '{{ mysql_pod.stdout }}' is ready and running"
+
+    - name: Clean up temporary manifests directory
+      file:
+        path: "{{ k8s_manifests_dir }}"
+        state: absent

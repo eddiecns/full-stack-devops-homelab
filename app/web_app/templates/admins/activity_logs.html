@@ -1,0 +1,136 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Activity Logs - Admin{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-header">
+    <h2><i class="bi bi-clock-history me-2"></i> Activity Logs</h2>
+    <p>Track all recent activities and changes on the platform</p>
+</div>
+
+<!-- Filter Options -->
+<div class="admin-chart-container mb-4">
+    <form method="get" class="row g-3">
+        <div class="col-md-2">
+            <input type="text" name="search" class="form-control" placeholder="Search logs..." value="{{ request.GET.search }}">
+        </div>
+        <div class="col-md-2">
+            <select name="user_type" class="form-select">
+                <option value="">All User Types</option>
+                <option value="customer" {% if request.GET.user_type == "customer" %}selected{% endif %}>Customers</option>
+                <option value="vendor" {% if request.GET.user_type == "vendor" %}selected{% endif %}>Vendors</option>
+                <option value="admin" {% if request.GET.user_type == "admin" %}selected{% endif %}>Admins</option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <select name="action" class="form-select">
+                <option value="">All Actions</option>
+                {% for action in distinct_actions %}
+                    <option value="{{ action }}" {% if request.GET.action == action %}selected{% endif %}>
+                        {{ action }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="date_from" class="form-control" placeholder="From Date" value="{{ request.GET.date_from }}">
+        </div>
+        <div class="col-md-2">
+            <input type="date" name="date_to" class="form-control" placeholder="To Date" value="{{ request.GET.date_to }}">
+        </div>
+        <div class="col-md-2">
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-admin-primary flex-fill" title="Apply Filters">
+                    <i class="bi bi-funnel"></i>
+                </button>
+                <a href="{% url 'vendor_activity_logs' %}" class="btn btn-secondary flex-fill" title="Clear Filters">
+                    <i class="bi bi-x-circle"></i>
+                </a>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="admin-table">
+    {% if logs %}
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Timestamp</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                    <th>User</th>
+                    <th>User Type</th>
+                    <th>IP Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.timestamp|date:"Y-m-d H:i:s" }}</td>
+                    <td><span class="badge bg-primary">{{ log.action }}</span></td>
+                    <td>{{ log.details|default:"—" }}</td>
+                    <td>
+                        {% if log.user %}
+                            {% if log.user.user_type == "vendor" and log.user.profile.company_name %}
+                                {{ log.user.profile.company_name }}
+                            {% elif log.user.user_type == "customer" %}
+                                {{ log.user.get_full_name|default:log.user.username }}
+                            {% else %}
+                                {{ log.user.username }}
+                            {% endif %}
+                        {% else %}
+                            <span class="text-muted">System</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if log.user %}
+                            <span class="badge {% if log.user.user_type == 'vendor' %}bg-info{% elif log.user.user_type == 'customer' %}bg-success{% else %}bg-warning{% endif %}">
+                                {{ log.user.user_type|title }}
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">System</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ log.ip_address|default:"—" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if logs.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if logs.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ logs.previous_page_number }}&search={{ request.GET.search }}&user_type={{ request.GET.user_type }}&action={{ request.GET.action }}&date_from={{ request.GET.date_from }}&date_to={{ request.GET.date_to }}">Previous</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active">
+                <span class="page-link">Page {{ logs.number }} of {{ logs.paginator.num_pages }}</span>
+            </li>
+
+            {% if logs.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ logs.next_page_number }}&search={{ request.GET.search }}&user_type={{ request.GET.user_type }}&action={{ request.GET.action }}&date_from={{ request.GET.date_from }}&date_to={{ request.GET.date_to }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="admin-alert info">
+        <i class="bi bi-info-circle"></i>
+        No activity logs found matching your filters.
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

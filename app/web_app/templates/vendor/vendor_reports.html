@@ -1,0 +1,75 @@
+{% extends "base_vendor.html" %}
+{% load static %}
+
+{% block content %}
+<div class="vendor-content">
+
+    <div class="vendor-header mb-4">
+        <h2>Vendor Dashboard - Reports</h2>
+        <p>View your orders, track sales, and download or print reports</p>
+    </div>
+
+    <!-- Buttons -->
+    <div class="mb-3 text-end">
+        <a href="{% url 'vendor_reports_pdf' %}" class="btn btn-secondary me-2">
+            <i class="bi bi-download me-1"></i> Download PDF
+        </a>
+        <button onclick="window.print();" class="btn btn-primary">
+            <i class="bi bi-printer me-1"></i> Print
+        </button>
+    </div>
+
+    <h3>Total Revenue: R{{ total_revenue|floatformat:2 }}</h3>
+
+    {% if top_product %}
+        <p>Top-Selling Product: {{ top_product.product__name }} ({{ top_product.total_sold }} sold)</p>
+    {% endif %}
+
+    <h3>Orders</h3>
+    {% for order_data in orders_with_items %}
+        <div class="card mb-4 p-3">
+            <strong>Order ID:</strong> {{ order_data.order.id }} |
+            <strong>Date:</strong> {{ order_data.order.created_at|date:"Y-m-d H:i" }} |
+            <strong>Status:</strong> {{ order_data.order.status }}
+
+            <table class="table table-bordered table-striped mt-2">
+                <thead class="table-light">
+                    <tr>
+                        <th>Product</th>
+                        <th class="text-end">Quantity</th>
+                        <th class="text-end">Price (R)</th>
+                        <th class="text-end">Subtotal (R)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in order_data.items %}
+                        <tr>
+                            <td>{{ entry.item.product.name }}</td>
+                            <td class="text-end">{{ entry.item.quantity }}</td>
+                            <td class="text-end">{{ entry.item.price|floatformat:2 }}</td>
+                            <td class="text-end">{{ entry.line_total|floatformat:2 }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="text-end"><strong>Order Total:</strong></td>
+                        <td class="text-end"><strong>{{ order_data.subtotal|floatformat:2 }}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    {% empty %}
+        <p>No orders found for your products.</p>
+    {% endfor %}
+
+</div>
+
+<style>
+@media print {
+    body * { visibility: hidden; }
+    .vendor-content, .vendor-content * { visibility: visible; }
+    .vendor-content { position: absolute; top: 0; left: 0; width: 100%; }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,443 @@
+/* ADMIN SIDEBAR */
+.sidebar.admin {
+    width: 280px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background: #3f51b5; /* Medium blue */
+    color: #fff;
+    overflow-y: auto;
+    z-index: 1000;
+    padding-top: 20px;
+}
+
+.sidebar.admin::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar.admin::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.sidebar.admin .sidebar-header {
+    text-align: center;
+    padding: 20px;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 10px;
+}
+
+.sidebar.admin .sidebar-header i {
+    font-size: 3rem;
+    color: #ffd54f;
+    margin-bottom: 10px;
+}
+
+.sidebar.admin .sidebar-header h5 {
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.sidebar.admin h6 {
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.sidebar.admin .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin: 4px 12px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+}
+
+.sidebar.admin .nav-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transform: translateX(5px);
+}
+
+.sidebar.admin .nav-link.active {
+    background: rgba(255, 213, 79, 0.2);
+    color: #ffd54f;
+    font-weight: 600;
+}
+
+.sidebar.admin .nav-link i {
+    font-size: 1.1rem;
+}
+
+/* ADMIN CONTENT AREA */
+.content-area.admin {
+    margin-left: 280px;
+    padding: 30px;
+    background: #f5f7fa;
+    min-height: 100vh;
+}
+
+/* ADMIN DASHBOARD CARDS */
+.admin-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 4px solid #1a237e;
+}
+
+.admin-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+}
+
+.admin-card .card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+}
+
+.admin-card.primary .card-icon {
+    background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+    color: #fff;
+}
+
+.admin-card.success .card-icon {
+    background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
+    color: #fff;
+}
+
+.admin-card.warning .card-icon {
+    background: linear-gradient(135deg, #f57c00 0%, #fb8c00 100%);
+    color: #fff;
+}
+
+.admin-card.info .card-icon {
+    background: linear-gradient(135deg, #0277bd 0%, #0288d1 100%);
+    color: #fff;
+}
+
+.admin-card h3 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a237e;
+    margin: 10px 0;
+}
+
+.admin-card p {
+    color: #666;
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+/* ===================================
+   ADMIN STATS GRID
+   =================================== */
+.admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+/* ===================================
+   ADMIN PAGE HEADER
+   =================================== */
+.admin-header {
+    background: #fff;
+    padding: 25px 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid #1a237e;
+}
+
+.admin-header h2 {
+    color: #1a237e;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+}
+
+.admin-header p {
+    color: #666;
+    margin: 0;
+}
+
+/* ===================================
+   ADMIN TABLES
+   =================================== */
+.admin-table {
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.admin-table table {
+    margin: 0;
+}
+
+.admin-table thead {
+    background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+    color: #fff;
+}
+
+.admin-table thead th {
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+    padding: 15px;
+    border: none;
+}
+
+.admin-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.admin-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.admin-table tbody td {
+    padding: 15px;
+    vertical-align: middle;
+}
+
+/* ===================================
+   ADMIN BADGES
+   =================================== */
+.badge.admin-badge {
+    padding: 6px 12px;
+    font-weight: 500;
+    font-size: 0.85rem;
+}
+
+.badge.admin-badge.active {
+    background: #4caf50;
+}
+
+.badge.admin-badge.inactive {
+    background: #f44336;
+}
+
+.badge.admin-badge.pending {
+    background: #ff9800;
+}
+
+/* ===================================
+   ADMIN BUTTONS
+   =================================== */
+.btn-admin-primary {
+    background: linear-gradient(135deg, #1a237e 0%, #3949ab 100%);
+    color: #fff;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-admin-primary:hover {
+    background: linear-gradient(135deg, #0d1642 0%, #283593 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(26, 35, 126, 0.3);
+    color: #fff;
+}
+
+.btn-admin-secondary {
+    background: #fff;
+    color: #1a237e;
+    border: 2px solid #1a237e;
+    padding: 10px 25px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-admin-secondary:hover {
+    background: #1a237e;
+    color: #fff;
+}
+
+.btn-admin-danger {
+    background: linear-gradient(135deg, #c62828 0%, #d32f2f 100%);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-admin-danger:hover {
+    background: linear-gradient(135deg, #b71c1c 0%, #c62828 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(198, 40, 40, 0.3);
+}
+
+.btn-admin-success {
+    background: linear-gradient(135deg, #2e7d32 0%, #43a047 100%);
+    color: #fff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-admin-success:hover {
+    background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3);
+}
+
+/* ===================================
+   ADMIN CHART CONTAINER
+   =================================== */
+.admin-chart-container {
+    background: #fff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+}
+
+.admin-chart-container h4 {
+    color: #1a237e;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* ===================================
+   ADMIN ACTION ICONS
+   =================================== */
+.admin-action-icons {
+    display: flex;
+    gap: 10px;
+}
+
+.admin-action-icons a,
+.admin-action-icons button {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.admin-action-icons .btn-view {
+    background: #2196f3;
+    color: #fff;
+}
+
+.admin-action-icons .btn-view:hover {
+    background: #1976d2;
+    transform: scale(1.1);
+}
+
+.admin-action-icons .btn-edit {
+    background: #ff9800;
+    color: #fff;
+}
+
+.admin-action-icons .btn-edit:hover {
+    background: #f57c00;
+    transform: scale(1.1);
+}
+
+.admin-action-icons .btn-delete {
+    background: #f44336;
+    color: #fff;
+}
+
+.admin-action-icons .btn-delete:hover {
+    background: #d32f2f;
+    transform: scale(1.1);
+}
+
+/* ===================================
+   ADMIN ALERT BOX
+   =================================== */
+.admin-alert {
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.admin-alert i {
+    font-size: 1.5rem;
+}
+
+.admin-alert.info {
+    background: #e3f2fd;
+    color: #0277bd;
+    border-left: 4px solid #0277bd;
+}
+
+.admin-alert.warning {
+    background: #fff3e0;
+    color: #e65100;
+    border-left: 4px solid #e65100;
+}
+
+.admin-alert.success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-left: 4px solid #2e7d32;
+}
+
+.admin-alert.danger {
+    background: #ffebee;
+    color: #c62828;
+    border-left: 4px solid #c62828;
+}
+
+/* ===================================
+   RESPONSIVE DESIGN
+   =================================== */
+@media (max-width: 992px) {
+    .sidebar.admin {
+        width: 250px;
+    }
+
+    .content-area.admin {
+        margin-left: 250px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar.admin {
+        width: 100%;
+        position: relative;
+        height: auto;
+        min-height: auto;
+    }
+
+    .content-area.admin {
+        margin-left: 0;
+    }
+
+    .admin-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

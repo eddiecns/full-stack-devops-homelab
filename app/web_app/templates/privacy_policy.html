@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Privacy Policy{% endblock %}
+
+{% block content %}
+
+<!-- Custom CSS -->
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+<!-- Hero Section -->
+<div class="hero-section d-flex align-items-center justify-content-center">
+    <div class="hero-content text-center text-white px-4">
+        <h1 class="animate-fade-in">Privacy Policy</h1>
+        <p class="animate-fade-in" style="animation-delay: 0.2s;">Your privacy is important to us</p>
+    </div>
+</div>
+
+<!-- Content Section -->
+<section class="policy-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto animate-fade-in" style="animation-delay: 0.3s;">
+                <h4>Information We Collect</h4>
+                <ul>
+                    <li><strong>Personal Information:</strong> Name, email, phone number, delivery address, payment details.</li>
+                    <li><strong>Order Information:</strong> Your orders, preferences, and order history.</li>
+                    <li><strong>Usage Data:</strong> IP address, browser type, and browsing behavior on our website.</li>
+                </ul>
+
+                <h4>How We Use Your Information</h4>
+                <ul>
+                    <li>To process and deliver your orders efficiently.</li>
+                    <li>To communicate with you about your orders, promotions, or updates.</li>
+                    <li>To improve our website, products, and services.</li>
+                </ul>
+
+                <h4>Sharing Your Information</h4>
+                <p>We never sell your personal information. We may share your data with trusted service providers who help us deliver products or process payments, but only as necessary.</p>
+
+                <h4>Cookies & Tracking</h4>
+                <p>We may use cookies and analytics tools to understand how you use our website and enhance your browsing experience.</p>
+
+                <h4>Data Security</h4>
+                <p>We implement reasonable security measures to protect your information from unauthorized access or disclosure.</p>
+
+                <h4>Changes to This Policy</h4>
+                <p>We may update this Privacy Policy from time to time. Any changes will be posted on this page.</p>
+
+                <p>If you have any questions, please contact us at <strong>ssupport@ecns.co.za</strong>.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

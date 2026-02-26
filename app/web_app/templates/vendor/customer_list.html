@@ -1,0 +1,148 @@
+{% extends "base_vendor.html" %}
+{% load static %}
+
+{% block title %}Customer List{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+{% endblock %}
+
+{% block vendor_content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-people me-2"></i> Customer Management</h2>
+    <p>View and manage your customer base and their purchase history</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="profile-card">
+
+            {% if customers %}
+                <!-- Customer Stats Summary -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="customer-stat-card">
+                            <div class="stat-icon">
+                                <i class="bi bi-people-fill"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6>Total Customers</h6>
+                                <p class="stat-value">{{ customers|length }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="customer-stat-card">
+                            <div class="stat-icon stat-orders">
+                                <i class="bi bi-cart-check"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6>Total Orders</h6>
+                                <p class="stat-value">{{ total_orders|default:"0" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="customer-stat-card">
+                            <div class="stat-icon stat-revenue">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6>Total Revenue</h6>
+                                <p class="stat-value">R{{ total_revenue|default:"0" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customers Table -->
+                <div class="table-responsive">
+                    <table class="table activity-table customers-table">
+                        <thead>
+                            <tr>
+                                <th><i class="bi bi-person me-2"></i>Name</th>
+                                <th><i class="bi bi-envelope me-2"></i>Email</th>
+                                <th><i class="bi bi-telephone me-2"></i>Phone</th>
+                                <th><i class="bi bi-bag me-2"></i>Total Orders</th>
+                                <th><i class="bi bi-currency-dollar me-2"></i>Total Spent</th>
+                                <th><i class="bi bi-calendar-event me-2"></i>Last Order</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for customer in customers %}
+                            <tr class="activity-row customer-row">
+                                <td class="customer-name">
+                                    <span>{{ customer.get_full_name }}</span>
+                                </td>
+                                <td class="customer-email">
+                                    <i class="bi bi-envelope-fill text-muted me-1"></i>
+                                    {{ customer.email }}
+                                </td>
+                                <td class="customer-phone">
+                                    {{ customer.profile.phone|default:"—" }}
+                                </td>
+                                <td class="orders-cell">
+                                    {{ customer.total_orders }}
+                                </td>
+                                <td class="spent-cell">
+                                    <strong>R{{ customer.total_spent|default:0 }}</strong>
+                                </td>
+                                <td class="timestamp-cell">
+                                    {% if customer.last_order %}
+
+                                        {{ customer.last_order|date:"Y-m-d" }}
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination (if needed) -->
+                {% if customers.has_other_pages %}
+                <nav aria-label="Customers pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if customers.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ customers.previous_page_number }}">
+                                <i class="bi bi-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in customers.paginator.page_range %}
+                        <li class="page-item {% if customers.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if customers.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ customers.next_page_number }}">
+                                Next <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <i class="bi bi-people"></i>
+                    <h4>No Customers Yet</h4>
+                    <p>You haven't had any customers yet. Your customer list will appear here once you start receiving orders.</p>
+                    <a href="{% url 'vendor_products' %}" class="btn-browse">View Products</a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

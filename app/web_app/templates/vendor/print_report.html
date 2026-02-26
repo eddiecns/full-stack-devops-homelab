@@ -1,0 +1,135 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Report - {{ period|title }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/print.css' %}">
+</head>
+
+<body>
+    <!-- Print Button (hidden when printing) -->
+    <div class="no-print">
+        <button onclick="window.print()" class="btn btn-primary">
+            <i class="bi bi-printer"></i> Print Report
+        </button>
+    </div>
+
+    <!-- Printable Area -->
+    <div class="printable-area">
+        
+        <!-- Company Header -->
+        <div class="company-header">
+            <img src="/static/images/logo.png" alt="Nyarie's Bakery Logo">
+            <div class="company-info">
+                <h1><strong>Nyarie's Bakery</strong></h1>
+                <small>You Buy, We Serve</small>
+            </div>
+        </div>
+
+        <!-- Report Title -->
+        <div class="report-title">
+            <h3>Sales Report</h3>
+            <span class="period-badge">{{ period|title }} Period</span>
+        </div>
+
+        <!-- Vendor Info -->
+        <div class="vendor-info">
+            <h6><i class="bi bi-person-badge"></i> Vendor Details</h6>
+            <p>
+                <strong>Vendor:</strong> {{ request.user.get_full_name }}<br>
+                <strong>Email:</strong> {{ request.user.email }}<br>
+                {% if request.user.profile.company_name %}
+                <strong>Company:</strong> {{ request.user.profile.company_name }}<br>
+                {% endif %}
+                {% if request.user.profile.vendor_id %}
+                <strong>Vendor ID:</strong> {{ request.user.profile.vendor_id }}<br>
+                {% endif %}
+                <strong>Report Generated:</strong> {{ now|date:"F d, Y - H:i" }}
+            </p>
+        </div>
+
+        <!-- Summary Statistics -->
+        {% if sales %}
+        <div class="summary-stats">
+            <div class="stat-card">
+                <h6>Total Sales</h6>
+                <div class="stat-value">R{{ total_sales|floatformat:2 }}</div>
+            </div>
+            <div class="stat-card">
+                <h6>Total Orders</h6>
+                <div class="stat-value">{{ sales|length }}</div>
+            </div>
+            <div class="stat-card">
+                <h6>Total Items Sold</h6>
+                <div class="stat-value">{{ total_items }}</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Sales Table -->
+        <h5 class="mb-3"><i class="bi bi-table"></i> Detailed Sales Breakdown</h5>
+        {% if sales %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in sales %}
+                <tr>
+                    <td>#{{ item.order_id }}</td>
+                    <td>{{ item.product_name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>R{{ item.unit_price|floatformat:2 }}</td>
+                    <td>R{{ item.total|floatformat:2 }}</td>
+                    <td>{{ item.date|date:"Y-m-d H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4"><strong>TOTAL SALES</strong></td>
+                    <td colspan="2"><strong>R{{ total_sales|floatformat:2 }}</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+        {% else %}
+        <div class="alert alert-info" role="alert">
+            <i class="bi bi-info-circle"></i> No sales data available for the selected period.
+        </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="report-footer">
+            <p>This report was generated automatically by Nyarie's Bakery Sales Management System</p>
+            <p>For questions or concerns, please contact support@ecns.c.za</p>
+        </div>
+    </div>
+
+    <script>
+        // Calculate total items if not provided by backend
+        {% if not total_items %}
+        document.addEventListener('DOMContentLoaded', function() {
+            const rows = document.querySelectorAll('tbody tr');
+            let total = 0;
+            rows.forEach(row => {
+                const qty = parseInt(row.cells[2].textContent);
+                if (!isNaN(qty)) total += qty;
+            });
+            const totalItemsEl = document.querySelector('.stat-card:nth-child(3) .stat-value');
+            if (totalItemsEl) totalItemsEl.textContent = total;
+        });
+        {% endif %}
+    </script>
+</body>
+</html>

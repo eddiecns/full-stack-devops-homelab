@@ -1,0 +1,178 @@
+{% extends "base_vendor.html" %}
+{% load static %}
+
+{% block title %}Pending Orders{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+{% endblock %}
+
+{% block vendor_content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-bag-check me-2"></i> Pending Customer Orders</h2>
+    <p>Manage and update the status of customer orders containing your products</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="profile-card">
+
+            {% if orders %}
+                <!-- Pending Orders Stats -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="customer-stat-card">
+                            <div class="stat-icon stat-pending">
+                                <i class="bi bi-hourglass-split"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6>Pending Orders</h6>
+                                <p class="stat-value">{{ pending_count|default:"0" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="customer-stat-card">
+                            <div class="stat-icon stat-orders">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6>Paid Orders</h6>
+                                <p class="stat-value">{{ paid_count|default:"0" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="customer-stat-card">
+                            <div class="stat-icon stat-cancelled">
+                                <i class="bi bi-x-circle"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6>Cancelled Orders</h6>
+                                <p class="stat-value">{{ cancelled_count|default:"0" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="table-responsive">
+                    <table class="table activity-table vendor-orders-table">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th><i class="bi bi-person me-2"></i>Customer</th>
+                                <th><i class="bi bi-box-seam me-2"></i>Items (Your Products)</th>
+                                <th><i class="bi bi-tag me-2"></i>Your Subtotal</th>
+                                <th><i class="bi bi-currency-dollar me-2"></i>Global Total</th>
+                                <th><i class="bi bi-calendar-event me-2"></i>Date</th>
+                                <th><i class="bi bi-info-circle me-2"></i>Status</th>
+                                <th><i class="bi bi-gear me-2"></i>Update</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr class="activity-row vendor-order-row">
+                                <td class="order-number">
+                                    Order: {{ order.id }}
+                                </td>
+                                <td class="customer-name-cell">
+                                    <div class="customer-info">
+                                        {{ order.user.username }}
+                                    </div>
+                                </td>
+                                <td class="items-cell">
+                                    <div class="order-items-list">
+                                        {% for item in order.vendor_items_list %}
+                                            <div class="order-item-row">
+                                                {{ item.product.name }}
+                                                {{ item.quantity }} x
+                                                R{{ item.subtotal }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </td>
+                                <td class="subtotal-cell">
+                                    <strong>R{{ order.vendor_subtotal }}</strong>
+                                </td>
+                                <td class="total-cell">
+                                    R{{ order.global_total }}
+                                </td>
+                                <td class="timestamp-cell">
+                                    {{ order.created_at|date:"Y-m-d H:i" }}
+                                </td>
+                                <td class="status-cell">
+                                    <span class="status-badge
+                                        {% if order.status == 'paid' %}status-paid
+                                        {% elif order.status == 'pending' %}status-pending
+                                        {% elif order.status == 'cancelled' %}status-cancelled
+                                        {% else %}status-default
+                                        {% endif %}">
+
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="action-cell">
+                                    <form method="post" action="{% url 'update_order_status' order.id %}" class="status-update-form">
+                                        {% csrf_token %}
+                                        <select name="status" class="form-select form-select-sm status-select">
+                                            <option value="pending" {% if order.status == "pending" %}selected{% endif %}>Pending</option>
+                                            <option value="paid" {% if order.status == "paid" %}selected{% endif %}>Paid</option>
+                                            <option value="cancelled" {% if order.status == "cancelled" %}selected{% endif %}>Cancelled</option>
+                                        </select>
+                                        <button type="submit" class="btn-update-status">
+                                            Update
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination (if needed) -->
+                {% if orders.has_other_pages %}
+                <nav aria-label="Orders pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if orders.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orders.previous_page_number }}">
+                                <i class="bi bi-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in orders.paginator.page_range %}
+                        <li class="page-item {% if orders.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if orders.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orders.next_page_number }}">
+                                Next <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h4>No Orders Yet</h4>
+                    <p>You don't have any customer orders at the moment. Orders containing your products will appear here.</p>
+                    <a href="{% url 'vendor_products' %}" class="btn-browse">Manage Products</a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

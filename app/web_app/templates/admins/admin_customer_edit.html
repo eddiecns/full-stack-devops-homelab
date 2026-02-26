@@ -1,0 +1,84 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Edit Customer - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-pencil me-2"></i>Edit Customer</h2>
+    <p>Update customer details</p>
+</div>
+
+<div class="admin-card p-4 mt-3">
+    <form method="post">
+        {% csrf_token %}
+        {{ user_form.non_field_errors }}
+        {{ profile_form.non_field_errors }}
+
+        <!-- User Fields -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">First Name</label>
+                {{ user_form.first_name }}
+                {{ user_form.first_name.errors }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Last Name</label>
+                {{ user_form.last_name }}
+                {{ user_form.last_name.errors }}
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Username</label>
+                {{ user_form.username }}
+                {{ user_form.username.errors }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email</label>
+                {{ user_form.email }}
+                {{ user_form.email.errors }}
+            </div>
+        </div>
+
+
+        <!-- Profile Fields -->
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Phone</label>
+                {{ profile_form.phone }}
+                {{ profile_form.phone.errors }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Mobile</label>
+                {{ profile_form.mobile }}
+                {{ profile_form.mobile.errors }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Payment Method</label>
+                {{ profile_form.payment_method }}
+                {{ profile_form.payment_method.errors }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Delivery Address</label>
+            {{ profile_form.delivery_address }}
+            {{ profile_form.delivery_address.errors }}
+        </div>
+
+        <hr>
+
+        <div class="mb-3 form-check">
+            {{ user_form.is_active }}
+            <label class="form-check-label">Active Profile?</label>
+            {{ user_form.is_active.errors }}
+        </div>
+        <hr>
+
+        <button type="submit" class="btn btn-admin-primary">Save Changes</button>
+        <a href="{% url 'admin_customers' %}" class="btn btn-admin-secondary ms-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}

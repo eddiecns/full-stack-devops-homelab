@@ -1,0 +1,125 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-tags me-2"></i> {{ title }}</h2>
+</div>
+
+<div class="admin-chart-container">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="id_name" class="form-label">Category Name</label>
+            {{ form.name }}
+            {% if form.name.errors %}
+                <div class="text-danger">{{ form.name.errors }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3">
+            <label for="id_image" class="form-label">Category Image</label>
+
+            <!-- Existing Image Preview -->
+            {% if form.instance.image %}
+            <div class="mb-3">
+                <p class="text-muted">Current Image:</p>
+                <img id="current-image" src="{{ form.instance.image.url }}" alt="{{ form.instance.name }}"
+                     style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
+            </div>
+            {% endif %}
+
+            <!-- New Image Preview (hidden initially) -->
+            <div id="preview-container" style="display: none;" class="mb-3">
+                <p class="text-muted">New Image Preview:</p>
+                <img id="image-preview" src="" alt="Preview"
+                     style="max-width: 200px; max-height: 200px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd;">
+            </div>
+
+            {{ form.image }}
+            {% if form.image.errors %}
+                <div class="text-danger">{{ form.image.errors }}</div>
+            {% endif %}
+            <small class="form-text text-muted">Recommended: Square image (e.g., 500x500px) for best results</small>
+        </div>
+
+        <button type="submit" class="btn btn-admin-primary">
+            <i class="bi bi-save me-2"></i>Save
+        </button>
+        <a href="{% url 'admin_categories' %}" class="btn btn-admin-secondary">
+            <i class="bi bi-x-circle me-2"></i>Cancel
+        </a>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('id_image');
+    const previewContainer = document.getElementById('preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const currentImage = document.getElementById('current-image');
+
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+
+            if (file) {
+                // Check if file is an image
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+
+                    reader.onload = function(e) {
+                        imagePreview.src = e.target.result;
+                        previewContainer.style.display = 'block';
+
+                        // Hide current image when new one is selected
+                        if (currentImage) {
+                            currentImage.style.display = 'none';
+                        }
+                    };
+
+                    reader.readAsDataURL(file);
+                } else {
+                    alert('Please select a valid image file.');
+                    imageInput.value = '';
+                    previewContainer.style.display = 'none';
+
+                    // Show current image again if upload is cancelled
+                    if (currentImage) {
+                        currentImage.style.display = 'block';
+                    }
+                }
+            } else {
+                // If no file selected, hide preview and show current image
+                previewContainer.style.display = 'none';
+                if (currentImage) {
+                    currentImage.style.display = 'block';
+                }
+            }
+        });
+    }
+});
+</script>
+
+<style>
+    #id_name, #id_image {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    #id_image {
+        padding: 10px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+    }
+</style>
+{% endblock %}

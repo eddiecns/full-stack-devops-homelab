@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Category List{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h1>Category List</h1>
+  <table class="table table-hover">
+    <thead class="table-dark">
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for category in categories %}
+      <tr>
+        <td>{{ category.id }}</td>
+        <td>{{ category.name }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="2" class="text-center">No categories found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

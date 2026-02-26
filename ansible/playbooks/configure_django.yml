@@ -1,0 +1,65 @@
+---
+- name: Configure Django deployment with database settings
+  hosts: kube_master
+  become: yes
+  vars:
+    mysql_database: "bake_db"
+    mysql_user: "{{ lookup('env', 'DB_USER') | default('bakery_user', true) }}"
+    mysql_password: "{{ lookup('env', 'DB_PASSWORD') | default('bakery_pass123', true) }}"
+    mysql_host: "mysql-service"
+    mysql_port: "3306"
+  
+  tasks:
+    - name: Update Django deployment with database environment variables
+      shell: |
+        kubectl set env deployment/django-bakery \
+          DATABASE_ENGINE=django.db.backends.mysql \
+          DATABASE_NAME={{ mysql_database }} \
+          DATABASE_USER={{ mysql_user }} \
+          DATABASE_PASSWORD={{ mysql_password }} \
+          DATABASE_HOST={{ mysql_host }} \
+          DATABASE_PORT={{ mysql_port }}
+      register: env_result
+      changed_when: "'env updated' in env_result.stdout or 'deployment.apps/django-bakery env updated' in env_result.stdout"
+    
+    - name: Wait for Django deployment to restart with new env vars
+      command: kubectl rollout status deployment/django-bakery --timeout=180s
+      register: rollout_result
+      changed_when: false
+    
+    - name: Get Django pod name
+      command: kubectl get pods -l app=django-bakery -o jsonpath='{.items[0].metadata.name}'
+      register: django_pod
+      changed_when: false
+      retries: 5
+      delay: 5
+      until: django_pod.stdout != ""
+    
+    - name: Wait for Django pod to be ready
+      command: kubectl wait --for=condition=ready pod/{{ django_pod.stdout }} --timeout=120s
+      register: wait_result
+      changed_when: false
+      when: django_pod.stdout != ""
+    
+    - name: Run Django migrations
+      command: kubectl exec deployment/django-bakery -- python manage.py migrate
+      register: migrate_result
+      changed_when: "'Applying' in migrate_result.stdout"
+    
+    - name: Display migration results
+      debug:
+        msg: "{{ migrate_result.stdout_lines }}"
+    
+    - name: Get Django service details
+      command: kubectl get svc django-bakery -o jsonpath='{.spec.type}:{.spec.ports[0].nodePort}'
+      register: svc_info
+      changed_when: false
+    
+    - name: Display deployment summary
+      debug:
+        msg: 
+          - "Django Bakery deployment configured successfully!"
+          - "Database: {{ mysql_database }} on {{ mysql_host }}:{{ mysql_port }}"
+          - "Django pod: {{ django_pod.stdout }}"
+          - "Service: {{ svc_info.stdout }}"
+          - "Access your app at: http://<any-worker-ip>:{{ svc_info.stdout.split(':')[1] }}"

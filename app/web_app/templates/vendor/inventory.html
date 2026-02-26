@@ -1,0 +1,177 @@
+{% extends "base_vendor.html" %}
+{% load static %}
+
+{% block title %}Inventory Management{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+{% endblock %}
+
+{% block vendor_content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-boxes me-2"></i> Inventory Management</h2>
+    <p>Monitor and manage your product stock levels and sales</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="profile-card">
+
+            <!-- Inventory Stats Summary -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="customer-stat-card">
+                        <div class="stat-icon">
+                            <i class="bi bi-box-seam"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h6>Total Products</h6>
+                            <p class="stat-value">{{ total_products }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="customer-stat-card">
+                        <div class="stat-icon stat-orders">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h6>Total Items Sold</h6>
+                            <p class="stat-value">{{ total_items_sold }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="customer-stat-card">
+                        <div class="stat-icon stat-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h6>Low Stock Products</h6>
+                            <p class="stat-value">{{ total_low_stock }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Low Stock Warning Alert -->
+            {% if low_stock_products %}
+            <div class="alert alert-warning-custom">
+                <div class="alert-icon">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="alert-content">
+                    <strong>Stock Alert!</strong> You have {{ total_low_stock }} product{% if total_low_stock > 1 %}s{% endif %} with low stock levels. Please restock soon.
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Inventory Table -->
+            <div class="table-responsive">
+                <table class="table activity-table inventory-table">
+                    <thead>
+                        <tr>
+                            <th><i class="bi bi-box-seam me-2"></i>Product</th>
+                            <th><i class="bi bi-stack me-2"></i>Current Stock</th>
+                            <th><i class="bi bi-cart-check me-2"></i>Total Sold</th>
+                            <th><i class="bi bi-info-circle me-2"></i>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr class="activity-row inventory-row">
+                            <td class="product-name-cell">
+                                <div class="product-info">
+                                    <div class="product-icon">
+                                    </div>
+                                    <span class="product-name">{{ product.name }}</span>
+                                </div>
+                            </td>
+                            <td class="stock-cell">
+                                <span class="stock-badge
+                                    {% if product.stock_quantity == 0 %}stock-zero
+                                    {% elif product.stock_quantity < 5 %}stock-low
+                                    {% else %}stock-good
+                                    {% endif %}">
+                                    {{ product.stock_quantity }} units
+                                </span>
+                            </td>
+                            <td class="sold-cell">
+                                <span class="sold-count">
+                                    {{ product.total_sold }} sold
+                                </span>
+                            </td>
+                            <td class="status-cell">
+                                {% if product.stock_quantity == 0 %}
+                                    <span class="status-badge status-out-of-stock">
+                                        Out of Stock
+                                    </span>
+                                {% elif product.stock_quantity < 5 %}
+                                    <span class="status-badge status-low-stock">
+                                        Low Stock
+                                    </span>
+                                {% else %}
+                                    <span class="status-badge status-in-stock">
+                                        In Stock
+                                    </span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if products.has_other_pages %}
+            <nav aria-label="Inventory pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if products.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.previous_page_number }}" aria-label="Previous">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </span>
+                    </li>
+                    {% endif %}
+
+                    {% for num in products.paginator.page_range %}
+                        {% if products.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if products.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ products.next_page_number }}" aria-label="Next">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

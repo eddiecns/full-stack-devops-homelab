@@ -1,0 +1,177 @@
+{% extends "base_vendor.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Edit Vendor Profile{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+
+{% endblock %}
+
+{% block vendor_content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-pencil-square me-2"></i> Edit Vendor Profile</h2>
+    <p>Update your business information and account details</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="profile-card">
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Personal Information Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-person-badge"></i>
+                        Personal Information
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.first_name.label }}</label>
+                            <div class="input-group-icon">
+                                <i class="bi bi-person"></i>
+                                {{ form.first_name|add_class:"form-control"|attr:"placeholder:First name" }}
+                            </div>
+                            {% if form.first_name.errors %}
+                                <small class="text-danger">{{ form.first_name.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.last_name.label }}</label>
+                            <div class="input-group-icon">
+                                <i class="bi bi-person"></i>
+                                {{ form.last_name|add_class:"form-control"|attr:"placeholder:Last name" }}
+                            </div>
+                            {% if form.last_name.errors %}
+                                <small class="text-danger">{{ form.last_name.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Company Information Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-briefcase"></i>
+                        Company Information
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.company_name.label }}</label>
+                            <div class="input-group-icon">
+                                <i class="bi bi-building"></i>
+                                {{ form.company_name|add_class:"form-control"|attr:"placeholder:Company Name" }}
+                            </div>
+                            {% if form.company_name.errors %}
+                                <small class="text-danger">{{ form.company_name.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">{{ form.vendor_id.label }}</label>
+                            <div class="input-group-icon">
+                                <i class="bi bi-upc-scan"></i>
+                                {{ form.vendor_id|add_class:"form-control"|attr:"placeholder:Vendor ID" }}
+                            </div>
+                            <small class="help-text">Only system administrators can edit this field</small>
+                            {% if form.vendor_id.errors %}
+                                <small class="text-danger d-block">{{ form.vendor_id.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Information Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-telephone"></i>
+                        Contact Information
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.email.label }}</label>
+                            <div class="input-group-icon">
+                                <i class="bi bi-envelope"></i>
+                                {{ form.email|add_class:"form-control"|attr:"placeholder:your.email@example.com" }}
+                            </div>
+                            {% if form.email.errors %}
+                                <small class="text-danger">{{ form.email.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.phone.label }}</label>
+                            <div class="input-group-icon">
+                                <i class="bi bi-telephone-fill"></i>
+                                {{ form.phone|add_class:"form-control"|attr:"placeholder:Telephone number" }}
+                            </div>
+                            {% if form.phone.errors %}
+                                <small class="text-danger">{{ form.phone.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.mobile.label }}</label>
+                            <div class="input-group-icon">
+                                <i class="bi bi-phone"></i>
+                                {{ form.mobile|add_class:"form-control"|attr:"placeholder:Mobile number" }}
+                            </div>
+                            {% if form.mobile.errors %}
+                                <small class="text-danger">{{ form.mobile.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Address Section -->
+                <div class="form-section">
+                    <div class="section-title">
+                        <i class="bi bi-geo-alt"></i>
+                        Business Address
+                    </div>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <label class="form-label">{{ form.delivery_address.label }}</label>
+                            <div class="input-group-icon">
+                                <i class="bi bi-house"></i>
+                                {{ form.delivery_address|add_class:"form-control"|attr:"placeholder:Enter your full business address"|attr:"rows:3" }}
+                            </div>
+                            <small class="help-text">Include street address, city, and postal code</small>
+                            {% if form.delivery_address.errors %}
+                                <small class="text-danger d-block">{{ form.delivery_address.errors.0 }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                {% endif %}
+
+                <!-- Submit Buttons -->
+                <div class="text-center mt-4">
+                    <a href="{% url 'vendor_profile' %}" class="btn btn-secondary me-3">
+                        <i class="bi bi-x-circle me-2"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn-save">
+                        <i class="bi bi-check-circle me-2"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

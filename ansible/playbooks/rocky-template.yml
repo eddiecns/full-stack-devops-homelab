@@ -1,0 +1,11 @@
+- name: Fully prepare Rocky Linux template
+  hosts: rocky_template
+  become: true
+  roles:
+  - updates
+  - common
+  - users
+  - ssh
+  - cloudinit
+  - validate
+  - cleanup

@@ -1,0 +1,101 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Analytics - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-graph-up-arrow me-2"></i>Analytics Dashboard</h2>
+    <p>Monitor key metrics and platform statistics</p>
+</div>
+
+<!-- Stats Cards -->
+<div class="admin-stats-grid">
+    <div class="admin-card primary">
+        <div class="card-icon">
+            <i class="bi bi-box-seam"></i>
+        </div>
+        <h3>{{ total_products }}</h3>
+        <p>Total Products</p>
+    </div>
+
+    <div class="admin-card success">
+        <div class="card-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <h3>{{ total_customers }}</h3>
+        <p>Total Customers</p>
+    </div>
+
+    <div class="admin-card warning">
+        <div class="card-icon">
+            <i class="bi bi-shop"></i>
+        </div>
+        <h3>{{ total_vendors }}</h3>
+        <p>Total Vendors</p>
+    </div>
+
+    <div class="admin-card info">
+        <div class="card-icon">
+            <i class="bi bi-cart-check"></i>
+        </div>
+        <h3>{{ total_orders }}</h3>
+        <p>Total Orders</p>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="admin-chart-container">
+    <h4>Sales Overview</h4>
+    <canvas id="salesChart" width="400" height="150"></canvas>
+</div>
+
+<div class="admin-chart-container mt-4">
+    <h4>Vendor Performance</h4>
+    <canvas id="vendorChart" width="400" height="150"></canvas>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+    // Sales Overview Chart
+    const ctxSales = document.getElementById('salesChart').getContext('2d');
+    const salesChart = new Chart(ctxSales, {
+        type: 'line',
+        data: {
+            labels: {{ sales_chart_labels|safe }},
+            datasets: [{
+                label: 'Orders',
+                data: {{ sales_chart_data|safe }},
+                borderColor: '#1a237e',
+                backgroundColor: 'rgba(26, 35, 126, 0.2)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: true } }
+        }
+    });
+
+
+    // Vendor Performance Chart
+    const ctxVendor = document.getElementById('vendorChart').getContext('2d');
+    const vendorChart = new Chart(ctxVendor, {
+        type: 'bar',
+        data: {
+            labels: {{ vendor_chart_labels|safe }},
+            datasets: [{
+                label: 'Products Sold',
+                data: {{ vendor_chart_data|safe }},
+                backgroundColor: ['#2e7d32', '#43a047', '#f57c00', '#0277bd']
+            }]
+        },
+        options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,91 @@
+---
+- name: Enable EPEL repository (RHEL/Alma/Rocky)
+  dnf:
+    name: epel-release
+    state: present
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Install common packages (RHEL)
+  dnf:
+    name:
+      - nano
+      - vim
+      - curl
+      - wget
+      - git
+      - unzip
+      - tar
+      - bash-completion
+      - sudo
+      - chrony
+      - net-tools
+      - bind-utils
+      - lsof
+      - rsync
+    state: present
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Install optional RHEL packages
+  dnf:
+    name:
+      - qemu-guest-agent
+      - cloud-init
+    state: present
+  ignore_errors: yes
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Install common packages (Debian)
+  apt:
+    name:
+      - nano
+      - vim
+      - curl
+      - wget
+      - git
+      - unzip
+      - tar
+      - bash-completion
+      - sudo
+      - chrony
+      - net-tools
+      - lsof
+      - rsync
+    state: present
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Install optional Debian packages
+  apt:
+    name:
+      - qemu-guest-agent
+      - cloud-init
+    state: present
+  ignore_errors: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Check if chrony/chronyd service exists
+  shell: systemctl list-unit-files | grep -E 'chrony|chronyd' | awk '{print $1}' | head -n1
+  register: chrony_service_check
+  changed_when: false
+  failed_when: false
+
+- name: Enable and start chrony service
+  systemd:
+    name: "{{ chrony_service_check.stdout if chrony_service_check.stdout != '' else ('chronyd' if ansible_facts['os_family'] == 'RedHat' else 'chrony') }}"
+    state: started
+    enabled: yes
+  when: chrony_service_check.stdout != ''
+  ignore_errors: yes
+
+- name: Enable and start qemu-guest-agent
+  systemd:
+    name: qemu-guest-agent
+    state: started
+    enabled: yes
+  ignore_errors: yes
+
+- name: Enable cloud-init service (if present)
+  systemd:
+    name: cloud-init
+    enabled: yes
+  ignore_errors: yes

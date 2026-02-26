@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Terms & Conditions{% endblock %}
+
+{% block content %}
+
+<!-- Custom CSS -->
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+<!-- Hero Section -->
+<div class="hero-section d-flex align-items-center justify-content-center">
+    <div class="hero-content text-center text-white px-4">
+        <h1 class="animate-fade-in">Terms & Conditions</h1>
+        <p class="animate-fade-in" style="animation-delay: 0.2s;">Please read carefully before using our services</p>
+    </div>
+</div>
+
+<!-- Content Section -->
+<section class="policy-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-10 mx-auto animate-fade-in" style="animation-delay: 0.3s;">
+                <h4>1. Orders</h4>
+                <p>All orders are subject to availability. We will confirm your order and delivery time via email or phone.</p>
+
+                <h4>2. Payments</h4>
+                <p>Payments are processed securely online. Payment must be completed to confirm your order.</p>
+
+                <h4>3. Delivery</h4>
+                <p>We strive to deliver your orders on time. Delivery times may vary due to location, holidays, or unforeseen circumstances.</p>
+
+                <h4>4. Refunds & Cancellations</h4>
+                <p>Cancellations or modifications must be made before the scheduled preparation of your order. Refunds are considered case-by-case.</p>
+
+                <h4>5. Product Quality</h4>
+                <p>If you have any concerns about quality, please contact us immediately.</p>
+
+                <h4>6. Intellectual Property</h4>
+                <p>All content, images, and branding on this website belong to [Your Bakery Name] and may not be used without permission.</p>
+
+                <h4>7. Liability</h4>
+                <p>We are not liable for any indirect, incidental, or consequential damages arising from the use of our website or products.</p>
+
+                <h4>8. Changes to Terms</h4>
+                <p>We may update these Terms & Conditions from time to time. Updated terms will be posted on this page.</p>
+
+                <p>By using our website, you acknowledge that you have read and agree to these Terms & Conditions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,159 @@
+version: "3.9"
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/prometheus-kubelet.token:/etc/prometheus/prometheus-kubelet.token:ro
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    environment:
+      GF_PATHS_PROVISIONING: /etc/grafana/provisioning
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_ORG: ${INFLUX_ORG}
+      INFLUXDB_BUCKET: ${INFLUX_BUCKET}
+      INFLUXDB_TOKEN: ${INFLUX_TOKEN}
+    volumes:
+      - /grafana/data:/var/lib/grafana
+      - ../grafana/provisioning:/etc/grafana/provisioning
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    restart: unless-stopped
+    ports:
+      - "9095:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+
+  node_exporter:
+    image: prom/node-exporter
+    container_name: node_exporter
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+
+  influxdb:
+    image: influxdb:2
+    container_name: influxdb
+    restart: unless-stopped
+    ports:
+      - "8086:8086"
+    volumes:
+      - influx_data:/var/lib/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: ${DOCKER_INFLUXDB_INIT_MODE}
+      DOCKER_INFLUXDB_INIT_USERNAME: ${DOCKER_INFLUXDB_INIT_USERNAME}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${DOCKER_INFLUXDB_INIT_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: ${DOCKER_INFLUXDB_INIT_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${DOCKER_INFLUXDB_INIT_BUCKET}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
+
+  unifi-poller:
+    image: golift/unifi-poller
+    container_name: unifi_poller
+    restart: unless-stopped
+    depends_on:
+      - influxdb
+    environment:
+      UP_UNIFI_URL: ${UNIFI_URL}
+      UP_UNIFI_USER: ${UNIFI_USER}
+      UP_UNIFI_PASS: ${UNIFI_PASS}
+      UP_INFLUXDB_URL: ${INFLUX_URL}
+      UP_INFLUXDB_DB: ${INFLUX_BUCKET}
+      UP_INFLUXDB_ORG: ${INFLUX_ORG}
+      UP_INFLUXDB_TOKEN: ${INFLUX_TOKEN}
+
+#  synology_exporter:
+#    image: paranerd/synology-exporter:v1.2.0
+#    container_name: synology_exporter
+#    ports:
+#      - "9618:80"
+#    environment:
+#      USERNAME: ${SYN_USER}
+#      PASSWORD: ${SYN_PASS}
+#      HOST: ${SYN_HOST}
+#      PORT: ${SYN_PORT}
+#    restart: unless-stopped
+
+  pihole_exporter:
+    build: ./pihole6_exporter
+    container_name: pihole6_exporter
+    ports:
+      - "9617:9666"
+    environment:
+      PIHOLE_HOST: ${PIHOLE_HOST}
+      PIHOLE_PASSWORD: ${PIHOLE_PASSWORD}
+      PIHOLE_PORT: 80
+      PIHOLE_PROTOCOL: http
+      PORT: 9666
+    restart: unless-stopped
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: 'Anenyasha@2012'
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    command: start-dev
+    restart: unless-stopped
+
+  telegraf:
+    image: telegraf:latest
+    container_name: telegraf
+    restart: unless-stopped
+    user: "telegraf:${DOCKER_GID:-122}"
+    volumes:
+      - ./telegraf/telegraf.conf:/etc/telegraf/telegraf.conf:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      INFLUX_TOKEN: ${INFLUX_TOKEN}
+      INFLUX_ORG: ${INFLUX_ORG}
+      INFLUX_BUCKET: ${INFLUX_BUCKET}
+      INFLUX_URL: ${INFLUX_URL}
+      SYN_USER: ${SYN_USER}
+      SYN_PASS: ${SYN_PASS}
+      SYN_HOST: ${SYN_HOST}
+      SYN_PORT: ${SYN_PORT}
+      UNIFI_URL: ${UNIFI_URL}
+      UNIFI_USER: ${UNIFI_USER}
+      UNIFI_PASS: ${UNIFI_PASS}
+      PIHOLE_HOST: ${PIHOLE_HOST}
+      PIHOLE_PASSWORD: ${PIHOLE_PASSWORD}
+    depends_on:
+      - influxdb
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    volumes:
+      - uptime_kuma_data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  influx_data:
+  keycloak_data:
+  uptime_kuma_data:
+

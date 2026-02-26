@@ -1,0 +1,139 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-bakery
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: django-bakery
+  template:
+    metadata:
+      labels:
+        app: django-bakery
+    spec:
+
+      # Prevent Django from running on worker03
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: NotIn
+                    values:
+                      - worker03-vm
+
+      volumes:
+      - name: static-files
+        emptyDir: {}
+      - name: media-files
+        persistentVolumeClaim:
+          claimName: media-pvc
+      - name: nginx-config
+        configMap:
+          name: nginx-config
+
+      initContainers:
+      - name: run-migrations
+        image: django-bakery-app:ef17925
+        command:
+          - sh
+          - -c
+          - |
+            echo "Waiting for MySQL..."
+            until nc -z mysql-service 3306; do
+              sleep 2
+            done
+            echo "MySQL is ready. Running migrations..."
+            python manage.py migrate --noinput
+        env:
+        - name: DJANGO_COLLECTSTATIC
+          value: "0"
+        - name: DB_HOST
+          value: "mysql-service"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_NAME
+          value: "bake_db"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_PASSWORD
+        - name: CSRF_TRUSTED_ORIGINS
+          value: "http://192.168.1.189:30914"
+
+      - name: run-collectstatic
+        image: django-bakery-app:ef17925
+        command: ['sh', '-c', 'python manage.py collectstatic --noinput']
+        volumeMounts:
+        - name: static-files
+          mountPath: /app/staticfiles
+        env:
+        - name: DJANGO_COLLECTSTATIC
+          value: "1"
+
+      containers:
+      - name: django
+        image: django-bakery-app:ef17925
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+        volumeMounts:
+        - name: static-files
+          mountPath: /app/staticfiles
+        - name: media-files
+          mountPath: /app/media
+        env:
+        - name: DJANGO_COLLECTSTATIC
+          value: "0"
+        - name: DB_HOST
+          value: "mysql-service"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_NAME
+          value: "bake_db"
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-secret
+              key: MYSQL_PASSWORD
+        - name: CSRF_TRUSTED_ORIGINS
+          value: "http://192.168.1.189:30914"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8000
+          initialDelaySeconds: 60
+          periodSeconds: 10
+
+      - name: nginx
+        image: nginx:alpine
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: static-files
+          mountPath: /usr/share/nginx/html/static
+        - name: media-files
+          mountPath: /usr/share/nginx/html/media
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/default.conf
+          subPath: default.conf

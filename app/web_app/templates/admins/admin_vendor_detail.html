@@ -1,0 +1,50 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Vendor Details - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-eye me-2"></i>Vendor Details</h2>
+    <p>View detailed information about the vendor</p>
+</div>
+
+<div class="admin-card">
+    <h5>Account Information</h5>
+    <hr>
+    <p><strong>ID:</strong> #{{ vendor.id }}</p>
+    <p><strong>Username:</strong> {{ vendor.username }}</p>
+    <p><strong>Email:</strong> {{ vendor.email }}</p>
+    <p><strong>Status:</strong>
+        {% if vendor.is_active %}
+            <span class="badge admin-badge active">Active</span>
+        {% else %}
+            <span class="badge admin-badge inactive">Inactive</span>
+        {% endif %}
+    </p>
+    <p><strong>Date Joined:</strong> {{ vendor.date_joined|date:"d M Y, H:i" }}</p>
+</div>
+
+{% if profile %}
+<div class="admin-card mt-4">
+    <h5>Profile Information</h5>
+    <hr>
+    <p><strong>Vendor ID:</strong> {{ vendor.profile.vendor_id }}</p>
+    <p><strong>Company Name:</strong> {{ vendor.profile.company_name|default:"—" }}</p>
+    <p><strong>First Name:</strong> {{ vendor.first_name|default:"—" }}</p>
+    <p><strong>Surname:</strong> {{ vendor.profile.surname|default:"—" }}</p>
+    <p><strong>Phone:</strong> {{ vendor.profile.phone|default:"—" }}</p>
+    <p><strong>Mobile:</strong> {{ vendor.profile.mobile|default:"—" }}</p>
+    <p><strong>Delivery Address:</strong> {{ vendor.profile.delivery_address|default:"—" }}</p>
+</div>
+{% endif %}
+
+<div class="mt-4">
+    <a href="{% url 'admin_vendor_edit' vendor.id %}" class="btn btn-admin-primary me-2">
+        <i class="bi bi-pencil me-1"></i>Edit Vendor
+    </a>
+    <a href="{% url 'admin_vendors' %}" class="btn btn-admin-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to Vendors
+    </a>
+</div>
+{% endblock %}

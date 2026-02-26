@@ -1,0 +1,133 @@
+{% extends "base_sidebar.html" %}
+{% load static %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block sidebar %}
+
+<!-- Contact page specific CSS -->
+<link rel="stylesheet" href="{% static 'css/customer.css' %}">
+
+<h6 class="sidebar-section-title">My Account</h6>
+<ul class="nav flex-column">
+    <li class="nav-item"><a class="nav-link active" href="{% url 'profile' %}"><i class="bi bi-person-circle me-2"></i> Profile Info</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'customer_orders' %}"><i class="bi bi-cart-check me-2"></i> Orders</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'customer_order_history' %}"><i class="bi bi-clock-history me-2"></i> Order History</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'cart' %}"><i class="bi bi-bag me-2"></i> Cart</a></li>
+</ul>
+
+<h6 class="sidebar-section-title">Navigation</h6>
+<ul class="nav flex-column mb-2">
+    <li class="nav-item"><a class="nav-link" href="{% url 'index' %}"><i class="bi bi-house me-2"></i> Home</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'about' %}"><i class="bi bi-info-circle me-2"></i> About</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}"><i class="bi bi-envelope me-2"></i> Contact</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-person-circle me-2"></i> My Profile</h2>
+    <p>View your personal information and preferences</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="profile-card">
+
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-person-badge"></i>
+                    Personal Information
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">First Name</label>
+                        <div class="profile-info">
+                            <i class="bi bi-person"></i>
+                            <span>{{ user.first_name|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Last Name</label>
+                        <div class="profile-info">
+                            <i class="bi bi-person"></i>
+                            <span>{{ user.last_name|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Phone</label>
+                        <div class="profile-info">
+                            <i class="bi bi-telephone"></i>
+                            <span>{{ profile.phone|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label class="form-label">Mobile</label>
+                        <div class="profile-info">
+                            <i class="bi bi-phone"></i>
+                            <span>{{ profile.mobile|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account & Payment Section -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-credit-card"></i>
+                    Account & Payment
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Email</label>
+                        <div class="profile-info">
+                            <i class="bi bi-envelope"></i>
+                            <span>{{ user.email|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Payment Method</label>
+                        <div class="profile-info">
+                            <i class="bi bi-credit-card"></i>
+                            <span>{{ profile.get_payment_method_display|default:"Not selected" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delivery Address Section -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-geo-alt"></i>
+                    Delivery Address
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <label class="form-label">Address</label>
+                        <div class="profile-info address-info">
+                            <i class="bi bi-house"></i>
+                            <span>{{ profile.delivery_address|default:"No delivery address provided"|linebreaks }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Edit Button -->
+            <div class="text-center mt-4">
+                <a href="{% url 'profile_edit' %}" class="btn-save">
+                    <i class="bi bi-pencil-square me-2"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

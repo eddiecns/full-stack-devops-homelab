@@ -1,0 +1,25 @@
+<div class="col-md-3">
+    <div class="list-group">
+        <a href="{% url 'profile' %}" class="list-group-item list-group-item-action {% if active == 'profile' %}active{% endif %}">
+            Profile Info
+        </a>
+        <a href="{% url 'customer_orders' %}" class="list-group-item list-group-item-action {% if active == 'orders' %}active{% endif %}">
+            Orders
+        </a>
+        <a href="{% url 'customer_order_history' %}" class="list-group-item list-group-item-action {% if active == 'history' %}active{% endif %}">
+            Order History
+        </a>
+        <a href="{% url 'cart' %}" class="list-group-item list-group-item-action">
+            Cart
+        </a>
+        <a href="{% url 'index' %}" class="list-group-item list-group-item-action">
+            Home
+        </a>
+        <a href="{% url 'about' %}" class="list-group-item list-group-item-action">
+            About
+        </a>
+        <a href="{% url 'contact' %}" class="list-group-item list-group-item-action">
+            Contact
+        </a>
+    </div>
+</div>

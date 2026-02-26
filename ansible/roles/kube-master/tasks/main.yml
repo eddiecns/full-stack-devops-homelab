@@ -1,0 +1,70 @@
+---
+# Install containerd
+- name: Add Docker repo
+  command: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+- name: Install containerd
+  dnf:
+    name: containerd.io
+    state: present
+
+- name: Configure containerd
+  shell: |
+    mkdir -p /etc/containerd
+    containerd config default > /etc/containerd/config.toml
+    sed -i 's/SystemdCgroup = false/SystemdCgroup = true/' /etc/containerd/config.toml
+
+- name: Enable containerd
+  service:
+    name: containerd
+    state: started
+    enabled: yes
+
+# Install Kubernetes RPMs
+- name: Add Kubernetes repo
+  copy:
+    dest: /etc/yum.repos.d/kubernetes.repo
+    content: |
+      [kubernetes]
+      name=Kubernetes
+      baseurl=https://pkgs.k8s.io/core:/stable:/v1.29/rpm/
+      enabled=1
+      gpgcheck=1
+      gpgkey=https://pkgs.k8s.io/core:/stable:/v1.29/rpm/repodata/repomd.xml.key
+
+- name: Install kubeadm, kubelet, kubectl
+  dnf:
+    name:
+      - kubelet
+      - kubeadm
+      - kubectl
+    state: present
+
+- name: Enable kubelet
+  systemd:
+    name: kubelet
+    enabled: yes
+    state: started
+
+# Initialize Kubernetes Control Plane
+- name: Initialize Kubernetes master
+  shell: kubeadm init --pod-network-cidr=10.244.0.0/16
+  args:
+    creates: /etc/kubernetes/admin.conf
+
+- name: Set up kubectl config for root
+  shell: |
+    mkdir -p $HOME/.kube
+    cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+    chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Save kubeadm join command for workers
+- name: Get kubeadm join command
+  shell: kubeadm token create --print-join-command
+  register: join_command
+
+- name: Save join command to a file
+  copy:
+    dest: /tmp/kubeadm_join_cmd.sh
+    content: "{{ join_command.stdout }}"
+    mode: '0755'

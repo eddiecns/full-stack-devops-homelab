@@ -1,0 +1,30 @@
+- name: Final warning
+  debug:
+    msg: "Final cleanup starting — VM must NEVER be powered on again"
+
+- name: Remove old machine-id
+  file:
+    path: /etc/machine-id
+    state: absent
+
+- name: Regenerate machine-id
+  command: systemd-machine-id-setup
+
+- name: Enable qemu-guest-agent
+  systemd:
+    name: qemu-guest-agent
+    enabled: true
+    state: started
+
+- name: Clean cloud-init logs
+  command: cloud-init clean --logs
+
+- name: Remove SSH host keys (terminal step)
+  shell: rm -f /etc/ssh/ssh_host_*
+  ignore_errors: true
+
+- name: Power off VM immediately
+  shell: shutdown -h now
+  async: 1
+  poll: 0
+  ignore_errors: true

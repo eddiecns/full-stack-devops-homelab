@@ -1,0 +1,551 @@
+{% extends "base_sidebar.html" %}
+{% load static %}
+
+{% block title %}My Cart{% endblock %}
+
+{% block sidebar %}
+
+<!-- Contact page specific CSS -->
+<link rel="stylesheet" href="{% static 'css/customer.css' %}">
+
+
+<h6 class="sidebar-section-title">My Account</h6>
+<ul class="nav flex-column">
+    <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}"><i class="bi bi-person-circle me-2"></i> Profile Info</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'customer_orders' %}"><i class="bi bi-cart-check me-2"></i> Active Orders</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'customer_order_history' %}"><i class="bi bi-clock-history me-2"></i> Order History</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'cart' %}"><i class="bi bi-bag me-2"></i> Cart</a></li>
+</ul>
+
+<h6 class="sidebar-section-title">Navigation</h6>
+<ul class="nav flex-column mb-2">
+    <li class="nav-item"><a class="nav-link" href="{% url 'index' %}"><i class="bi bi-house me-2"></i> Home</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'about' %}"><i class="bi bi-info-circle me-2"></i> About</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}"><i class="bi bi-envelope me-2"></i> Contact</a></li>
+</ul>
+{% endblock %}
+
+{% block sidebar_content %}
+
+<style>
+.profile-header {
+    background: linear-gradient(135deg, #8b4d23 0%, #5C3317 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 15px;
+    margin-bottom: 1rem;
+    box-shadow: 0 8px 24px rgba(139, 77, 35, 0.2);
+}
+
+.profile-header h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.profile-header p {
+    margin: 0;
+    opacity: 0.95;
+    font-size: 1.05rem;
+}
+
+.cart-card {
+    background: white;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(139, 77, 35, 0.1);
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.cart-item {
+    background: #faf6f1;
+    border: 2px solid #f5ebe0;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 1rem;
+    align-items: center;
+}
+
+.cart-item:hover {
+    border-color: #8b4d23;
+    box-shadow: 0 5px 15px rgba(139, 77, 35, 0.1);
+}
+
+.product-name {
+    font-weight: 600;
+    color: #8b4d23;
+    font-size: 1.1rem;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-input {
+    width: 70px;
+    text-align: center;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 0.5rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.quantity-input:focus {
+    border-color: #8b4d23;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 77, 35, 0.1);
+}
+
+.price-cell,
+.subtotal-cell {
+    font-weight: 600;
+    color: #333;
+    font-size: 1.05rem;
+    text-align: center;
+}
+
+.subtotal-cell {
+    color: #8b4d23;
+    font-size: 1.15rem;
+}
+
+.btn-remove {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-remove:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+}
+
+.cart-total-section {
+    background: linear-gradient(135deg, #8b4d23 0%, #5C3317 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 15px;
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cart-total-section .total-label {
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.cart-total-section .total-amount {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: white;
+}
+
+.checkout-card {
+    background: white;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(139, 77, 35, 0.1);
+    padding: 2.5rem;
+}
+
+.section-title {
+    color: #8b4d23;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid #f5ebe0;
+    display: flex;
+    align-items: center;
+}
+
+.section-title i {
+    margin-right: 0.75rem;
+    font-size: 1.8rem;
+}
+
+.form-label {
+    color: #8b4d23;
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.form-control,
+.form-select {
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #8b4d23;
+    box-shadow: 0 0 0 4px rgba(139, 77, 35, 0.1);
+    outline: none;
+}
+
+.btn-checkout {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border: none;
+    padding: 1rem 3rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+    width: 100%;
+}
+
+.btn-checkout:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+}
+
+.empty-cart {
+    background: white;
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(139, 77, 35, 0.1);
+    padding: 2rem 1rem;
+    text-align: center;
+}
+
+.empty-cart i {
+    font-size: 5rem;
+    color: #8b4d23;
+    opacity: 0.3;
+    margin-bottom: 1.5rem;
+}
+
+.empty-cart h4 {
+    color: #8b4d23;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.empty-cart p {
+    color: #6c757d;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.btn-shop {
+    background: linear-gradient(135deg, #8b4d23 0%, #5C3317 100%);
+    color: white;
+    border: none;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-shop:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(139, 77, 35, 0.3);
+    color: white;
+}
+
+.cart-header-labels {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr auto;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: #f5ebe0;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #8b4d23;
+    font-size: 0.95rem;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+.cart-card,
+.checkout-card {
+    animation: fadeIn 0.6s ease forwards;
+}
+
+.cart-item {
+    animation: fadeIn 0.5s ease forwards;
+}
+
+#checkout-form {
+    text-align: center;
+}
+#checkout-form .btn-save {
+    display: inline-block;
+    margin-top: 1rem;
+}
+
+
+
+@media (max-width: 768px) {
+    .profile-header {
+        padding: 1.5rem;
+    }
+
+    .cart-item {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .cart-header-labels {
+        display: none;
+    }
+
+    .cart-total-section {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+</style>
+
+{% if messages %}
+<div class="container mb-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-bag me-2"></i> Your Shopping Cart</h2>
+    <p>Review and manage your items</p>
+</div>
+
+{% if cart_items %}
+<div class="cart-card">
+    <div class="cart-header-labels">
+        <div>Product</div>
+        <div style="text-align: center;">Quantity</div>
+        <div style="text-align: center;">Price</div>
+        <div style="text-align: center;">Subtotal</div>
+        <div style="text-align: center;">Action</div>
+    </div>
+
+    {% for item in cart_items %}
+    <div class="cart-item" data-product-id="{{ item.product.id }}" style="animation-delay: {{ forloop.counter0|add:'0.1'|floatformat:1 }}s;">
+        <div class="product-name">
+            <i class="bi bi-box-seam me-2"></i>{{ item.product.name }}
+        </div>
+        <div class="quantity-control">
+            <input type="number" class="quantity-input"
+                   value="{{ item.quantity }}" min="0">
+        </div>
+        <div class="price-cell price">R{{ item.price|floatformat:2 }}</div>
+        <div class="subtotal-cell subtotal">R{{ item.subtotal|floatformat:2 }}</div>
+        <div>
+            <button class="btn-remove remove-btn">
+                <i class="bi bi-trash me-1"></i> Remove
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="cart-total-section">
+        <span class="total-label">Total Amount:</span>
+        <span class="total-amount" id="cart-total">R{{ total|floatformat:2 }}</span>
+    </div>
+</div>
+
+<div class="checkout-card">
+    <div class="section-title">
+        <i class="bi bi-credit-card"></i>
+        Checkout Information
+    </div>
+
+    <form id="checkout-form">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label for="delivery_address" class="form-label">
+                <i class="bi bi-geo-alt me-2"></i>Delivery Address
+            </label>
+            <textarea name="delivery_address" id="delivery_address" class="form-control" rows="3" placeholder="Enter your delivery address">{{ profile.delivery_address }}</textarea>
+        </div>
+
+        <div class="mb-4">
+            <label for="payment_method" class="form-label">
+                <i class="bi bi-wallet2 me-2"></i>Payment Method
+            </label>
+            <select name="payment_method" id="payment_method" class="form-select">
+                <option value="card" {% if profile.payment_method == "card" %}selected{% endif %}>Credit/Debit Card</option>
+                <option value="cash" {% if profile.payment_method == "cash" %}selected{% endif %}>Cash on Delivery</option>
+                <option value="paypal" {% if profile.payment_method == "paypal" %}selected{% endif %}>PayPal</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-save">
+            <i class="bi bi-check-circle me-2"></i>Place Order
+        </button>
+    </form>
+</div>
+
+<script>
+const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const rows = document.querySelectorAll('.cart-item[data-product-id]');
+    const totalCell = document.getElementById('cart-total');
+    const cartBadge = document.getElementById('cart-badge'); // Cart badge in header/sidebar
+
+    // Recalculate total for the cart page
+    function recalcTotal() {
+        let total = 0;
+        rows.forEach(row => {
+            const subtotalCell = row.querySelector('.subtotal');
+            total += parseFloat(subtotalCell.textContent.replace('R','')) || 0;
+        });
+        totalCell.textContent = 'R' + total.toFixed(2);
+    }
+
+    // Fetch updated cart count from server and update badge
+    function updateCartBadge() {
+        fetch("{% url 'cart' %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({'get_cart_count': '1'})
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(cartBadge && data.cart_count !== undefined){
+                cartBadge.textContent = data.cart_count;
+                // If cart is empty, show 0 or hide badge
+                if(data.cart_count === 0) {
+                    cartBadge.textContent = '0';
+                }
+            }
+        })
+        .catch(err => console.error('Error updating cart badge:', err));
+    }
+
+    rows.forEach(row => {
+        const qtyInput = row.querySelector('.quantity-input');
+        const priceCell = row.querySelector('.price');
+        const subtotalCell = row.querySelector('.subtotal');
+        const removeBtn = row.querySelector('.remove-btn');
+
+        // Handle quantity changes
+        qtyInput.addEventListener('input', () => {
+            const price = parseFloat(priceCell.textContent.replace('R','')) || 0;
+            const qty = parseInt(qtyInput.value) || 0;
+            subtotalCell.textContent = 'R' + (price * qty).toFixed(2);
+            recalcTotal();
+
+            fetch("{% url 'cart' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'product_id': row.dataset.productId,
+                    'quantity': qty,
+                    'action': 'update'
+                })
+            }).then(() => {
+                // Update cart badge after successful update
+                updateCartBadge();
+            });
+        });
+
+        // Handle remove button
+        removeBtn.addEventListener('click', () => {
+            fetch("{% url 'cart' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams({
+                    'product_id': row.dataset.productId,
+                    'quantity': 0,
+                    'action': 'update'
+                })
+            }).then(() => {
+                row.remove();
+                recalcTotal();
+                // Update cart badge after removal
+                updateCartBadge();
+
+                // If no items left, reload page to show empty cart message
+                const remainingItems = document.querySelectorAll('.cart-item[data-product-id]');
+                if(remainingItems.length === 0) {
+                    window.location.reload();
+                }
+            });
+        });
+    });
+
+    // Checkout form submission
+    const checkoutForm = document.getElementById('checkout-form');
+    checkoutForm.addEventListener('submit', async e => {
+        e.preventDefault();
+        const formData = new FormData(checkoutForm);
+
+        try {
+            const response = await fetch("{% url 'checkout' %}", {
+                method: 'POST',
+                headers: {'X-CSRFToken': csrfToken},
+                body: formData
+            });
+            const data = await response.json();
+
+            if(data.success && data.cod){
+                alert(data.message);
+                window.location.href = data.redirect_url;
+            } else if(data.checkout_url){
+                window.location.href = data.checkout_url;
+            } else if(data.error){
+                alert('Error: ' + data.error);
+            }
+        } catch (err){
+            console.error(err);
+            alert('An unexpected error occurred.');
+        }
+    });
+});
+</script>
+
+
+{% else %}
+<div class="empty-cart">
+    <i class="bi bi-cart-x"></i>
+    <h4>Your Cart is Empty</h4>
+    <p>Looks like you haven't added any items to your cart yet.</p>
+    <a href="{% url 'index' %}" class="btn-save">Start Shopping</a>
+
+</div>
+{% endif %}
+{% endblock %}

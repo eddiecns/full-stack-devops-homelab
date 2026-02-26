@@ -1,0 +1,52 @@
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* === Navbar & Footer === */
+.navbar, footer {
+    background-color: #8b4d23 !important;
+}
+
+.navbar .nav-link,
+.navbar-brand,
+footer,
+footer a {
+    color: #fff !important;
+}
+
+.navbar .nav-link:hover,
+footer a:hover {
+    color: #f1c40f !important;
+}
+
+/* === Buttons === */
+.btn-outline-success {
+    border-color: #fff;
+    color: #fff;
+}
+
+.btn-outline-success:hover {
+    background-color: #f1c40f;
+    border-color: #f1c40f;
+    color: #000;
+}
+
+/* === Darker footer bottom bar === */
+footer .bg-dark {
+    background-color: #5C3317 !important;
+}
+
+/* Optional default sidebar theme for non-vendor pages */
+.sidebar.default-theme {
+    background-color: #f8f9fa;
+    border-right: 1px solid #dee2e6;
+}
+
+.sidebar.default-theme .nav-link {
+    color: #333;
+}
+
+.sidebar.default-theme .nav-link.active,
+.sidebar.default-theme .nav-link:hover {
+    color: #0d6efd;
+}

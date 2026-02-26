@@ -1,0 +1,181 @@
+{% extends "base_vendor.html" %}
+{% load static %}
+
+{% block title %}My Products{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+{% endblock %}
+
+{% block vendor_content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-box-seam me-2"></i> My Products</h2>
+    <p>Manage your bakery product catalog and inventory</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="profile-card">
+
+            {% if products %}
+                <!-- Products Stats & Add Button -->
+                <div class="products-header mb-4">
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-8">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="customer-stat-card stat-card-compact">
+                                        <div class="stat-icon stat-products">
+                                            <i class="bi bi-box2"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <h6>Total Products</h6>
+                                            <p class="stat-value">{{ total_products }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="customer-stat-card stat-card-compact">
+                                        <div class="stat-icon stat-revenue">
+                                            <i class="bi bi-currency-dollar"></i>
+                                        </div>
+                                        <div class="stat-content">
+                                            <h6>Avg. Price</h6>
+                                            <p class="stat-value">R{{ avg_price|floatformat:2|default:"15.00" }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{% url 'add_product' %}" class="btn-browse">
+                                <i class="bi bi-plus-circle me-2"></i> Add New Product
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="table-responsive">
+                    <table class="table activity-table products-table">
+                        <thead>
+                            <tr>
+                                <th><i class="bi bi-image me-2"></i>Image</th>
+                                <th><i class="bi bi-tag me-2"></i>Name</th>
+                                <th><i class="bi bi-grid me-2"></i>Category</th>
+                                <th><i class="bi bi-currency-dollar me-2"></i>Price</th>
+                                <th><i class="bi bi-stack me-2"></i>Stock</th>
+                                <th><i class="bi bi-gear me-2"></i>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr class="activity-row product-row">
+                                <td class="product-image-cell">
+                                    {% if product.image %}
+                                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-thumbnail">
+                                    {% else %}
+                                        <div class="product-placeholder">
+                                            <i class="bi bi-image"></i>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td class="product-name-cell">
+                                    <strong>{{ product.name }}</strong>
+                                </td>
+                                <td class="category-cell">
+                                    <span class="category-badge">
+                                        {{ product.category.name }}
+                                    </span>
+                                </td>
+                                <td class="price-cell">
+                                    <strong>R{{ product.price }}</strong>
+                                </td>
+                                <td class="stock-cell">
+                                    <span class="stock-indicator
+                                        {% if product.stock_quantity == 0 %}stock-zero
+                                        {% elif product.stock_quantity < 5 %}stock-low
+                                        {% else %}stock-good
+                                        {% endif %}">
+                                        {{ product.stock_quantity }}
+                                    </span>
+                                </td>
+                                <td class="actions-cell">
+                                    <div class="action-buttons">
+                                        <a href="{% url 'edit_product' product.id %}" class="btn-action-edit" title="Edit Product">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
+                                        <a href="{% url 'delete_product' product.id %}" class="btn-action-delete" title="Delete Product">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if products.has_other_pages %}
+                <nav aria-label="Products pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if products.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.previous_page_number }}" aria-label="Previous">
+                                <i class="bi bi-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                <i class="bi bi-chevron-left"></i> Previous
+                            </span>
+                        </li>
+                        {% endif %}
+
+                        {% for num in products.paginator.page_range %}
+                            {% if products.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if products.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ products.next_page_number }}" aria-label="Next">
+                                Next <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">
+                                Next <i class="bi bi-chevron-right"></i>
+                            </span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <i class="bi bi-box-seam"></i>
+                    <h4>No Products Yet</h4>
+                    <p>You haven't added any products to your catalog yet. Start building your product inventory!</p>
+                    <a href="{% url 'add_product' %}" class="btn-browse">Add Your First Product</a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-header">
+    <h2><i class="bi bi-speedometer2 me-2"></i>Admin Dashboard</h2>
+    <p>Welcome back! Here's what's happening with your platform today.</p>
+</div>
+
+
+<!-- Platform Health Alerts -->
+{% if low_stock_products or inactive_vendors %}
+<div class="admin-alert warning">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    <div>
+        <strong>Attention Required</strong>
+        <p class="mb-0">
+            {% if low_stock_products %}{{ low_stock_products }} products are low on stock. {% endif %}
+            {% if inactive_vendors %}{{ inactive_vendors }} vendors haven't logged in for 30 days.{% endif %}
+        </p>
+    </div>
+</div>
+{% endif %}
+
+<!-- Stats Grid -->
+<div class="admin-stats-grid">
+    <!-- Total Vendors -->
+    <div class="admin-card primary">
+        <div class="card-icon">
+            <i class="bi bi-shop"></i>
+        </div>
+        <h3>{{ total_vendors }}</h3>
+        <p>Total Vendors</p>
+    </div>
+
+    <!-- Total Customers -->
+    <div class="admin-card success">
+        <div class="card-icon">
+            <i class="bi bi-people"></i>
+        </div>
+        <h3>{{ total_customers }}</h3>
+        <p>Total Customers</p>
+    </div>
+
+    <!-- Total Products -->
+    <div class="admin-card info">
+        <div class="card-icon">
+            <i class="bi bi-box-seam"></i>
+        </div>
+        <h3>{{ total_products }}</h3>
+        <p>Total Products</p>
+    </div>
+
+    <!-- Total Orders -->
+    <div class="admin-card warning">
+        <div class="card-icon">
+            <i class="bi bi-cart-check"></i>
+        </div>
+        <h3>{{ total_orders|default:"0" }}</h3>
+        <p>Total Orders</p>
+    </div>
+</div>
+
+<!-- Revenue & Pending Orders -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="admin-card success">
+            <div class="card-icon">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+            <h3>R{{ total_revenue|floatformat:2|default:"0.00" }}</h3>
+            <p>Total Platform Revenue</p>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="admin-card warning">
+            <div class="card-icon">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <h3>{{ pending_orders|default:"0" }}</h3>
+            <p>Pending Orders</p>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="admin-chart-container mt-4">
+    <h4><i class="bi bi-lightning me-2"></i>Quick Actions</h4>
+    <div class="d-flex gap-3 flex-wrap">
+        <a href="{% url 'admin_vendors' %}" class="btn btn-admin-primary">
+            <i class="bi bi-shop me-2"></i>Manage Vendors
+        </a>
+        <a href="{% url 'admin_all_products' %}" class="btn btn-admin-primary">
+            <i class="bi bi-box-seam me-2"></i>View All Products
+        </a>
+        <a href="{% url 'admin_all_orders' %}" class="btn btn-admin-primary">
+            <i class="bi bi-cart-check me-2"></i>View All Orders
+        </a>
+        <a href="{% url 'admin_categories' %}" class="btn btn-admin-primary">
+            <i class="bi bi-tags me-2"></i>Manage Categories
+        </a>
+        <a href="{% url 'admin_reports' %}" class="btn btn-admin-primary">
+            <i class="bi bi-file-earmark-text me-2"></i>Generate Reports
+        </a>
+    </div>
+</div>
+
+
+{% endblock %}

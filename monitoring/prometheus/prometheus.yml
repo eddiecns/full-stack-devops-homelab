@@ -1,0 +1,87 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+
+  # Prometheus itself
+  
+  - job_name: prometheus
+    static_configs:
+      - targets:
+          - prometheus:9090
+
+  # Linux / VM / Host metrics
+  
+  - job_name: node
+    static_configs:
+      - targets:
+          - node_exporter:9100
+
+  # Docker containers (cAdvisor)
+  
+  - job_name: cadvisor
+    static_configs:
+      - targets:
+          - cadvisor:8080
+
+  # Proxmox VE (REQUIRED for dashboards 10347 / 10048)
+  - job_name: proxmox
+    static_configs:
+      - targets:
+          - 192.168.1.6
+    metrics_path: /pve
+    params:
+      target: ['192.168.1.6']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.1.185:9221
+
+  # Synology NAS
+  
+  - job_name: synology
+    static_configs:
+      - targets:
+          - synology_exporter:9617
+
+  # Pi-hole
+  
+  - job_name: pihole
+    static_configs:
+      - targets:
+          - pihole6_exporter:9666
+
+  # Kubernetes: kubelet (node metrics)
+  - job_name: kubelet
+    scheme: https
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /etc/prometheus/prometheus-kubelet.token
+    static_configs:
+      - targets:
+          - 192.168.1.189:10250
+          - 192.168.1.171:10250
+          - 192.168.1.188:10250
+          - 192.168.1.179:10250
+        labels:
+          cluster: kubernetes-cluster
+
+  - job_name: kubelet-cadvisor
+    scheme: https
+    metrics_path: /metrics/cadvisor
+    tls_config:
+      insecure_skip_verify: true
+    bearer_token_file: /etc/prometheus/prometheus-kubelet.token
+    static_configs:
+      - targets:
+          - 192.168.1.189:10250
+          - 192.168.1.171:10250
+          - 192.168.1.188:10250
+          - 192.168.1.179:10250
+        labels:
+          cluster: kubernetes-cluster
+

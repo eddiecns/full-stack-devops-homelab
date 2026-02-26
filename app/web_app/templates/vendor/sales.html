@@ -1,0 +1,237 @@
+{% extends "base_vendor.html" %}
+{% load static %}
+
+{% block title %}Sales Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+
+{% endblock %}
+
+{% block vendor_content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-graph-up-arrow me-2"></i> Sales Dashboard</h2>
+    <p>Monitor your sales performance and key business metrics</p>
+</div>
+
+<!-- Period Filter Section -->
+<div class="profile-card mb-4">
+    <div class="period-filter-buttons">
+        <span class="filter-label"><i class="bi bi-calendar-range me-2"></i>View Period:</span>
+        <a href="?period=day" class="btn-period {% if period == 'day' %}active{% endif %}">
+            <i class="bi bi-sun me-1"></i> Today
+        </a>
+        <a href="?period=week" class="btn-period {% if period == 'week' %}active{% endif %}">
+            <i class="bi bi-calendar-week me-1"></i> This Week
+        </a>
+        <a href="?period=month" class="btn-period {% if period == 'month' %}active{% endif %}">
+            <i class="bi bi-calendar-month me-1"></i> This Month
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="dashboard-card card-sales">
+            <div class="card-icon">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+            <div class="card-content">
+                <h6>Total Sales</h6>
+                <p class="card-value">R{{ total_sales|floatformat:2 }}</p>
+                <small class="card-change {% if sales_change_percent >= 0 %}positive{% else %}negative{% endif %}">
+                    <i class="bi bi-arrow-{% if sales_change_percent >= 0 %}up{% else %}down{% endif %}"></i> {{ sales_change_percent }}%
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dashboard-card card-orders">
+            <div class="card-icon">
+                <i class="bi bi-basket"></i>
+            </div>
+            <div class="card-content">
+                <h6>Total Orders</h6>
+                <p class="card-value">{{ total_orders }}</p>
+                <small class="card-change {% if orders_change_percent >= 0 %}positive{% else %}negative{% endif %}">
+                    <i class="bi bi-arrow-{% if orders_change_percent >= 0 %}up{% else %}down{% endif %}"></i> {{ orders_change_percent }}%
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dashboard-card card-average">
+            <div class="card-icon">
+                <i class="bi bi-graph-up"></i>
+            </div>
+            <div class="card-content">
+                <h6>Average Sale</h6>
+                <p class="card-value">R{{ avg_sale|floatformat:2 }}</p>
+                <small class="card-change positive">
+                    <i class="bi bi-calculator"></i> Per Order
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="dashboard-card card-growth">
+            <div class="card-icon">
+                <i class="bi bi-arrow-up-right"></i>
+            </div>
+            <div class="card-content">
+                <h6>Growth Rate</h6>
+                <p class="card-value">{{ growth_rate }}%</p>
+                <small class="card-change {% if growth_rate >= 0 %}positive{% else %}negative{% endif %}">
+                    <i class="bi bi-arrow-{% if growth_rate >= 0 %}up{% else %}down{% endif %}"></i> vs Previous
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="chart-card">
+            <div class="chart-header">
+                <h5><i class="bi bi-pie-chart me-2"></i>Sales by Category</h5>
+                <span class="chart-badge">Line Chart</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="chart-card">
+            <div class="chart-header">
+                <h5><i class="bi bi-bar-chart me-2"></i>Top Products</h5>
+                <span class="chart-badge">Bar Chart</span>
+            </div>
+            <div class="chart-container">
+                <canvas id="productChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Category Chart (Line)
+const ctxCategory = document.getElementById('categoryChart').getContext('2d');
+new Chart(ctxCategory, {
+    type: 'line',
+    data: {
+        labels: {{ category_chart_labels|safe }},
+        datasets: {{ category_chart_data|safe }}
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+                backgroundColor: 'rgba(139, 77, 35, 0.95)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: '#8b4d23',
+                borderWidth: 2,
+                padding: 12,
+                displayColors: true,
+                callbacks: {
+                    label: function(context) {
+                        return 'R' + context.parsed.y.toFixed(2);
+                    }
+                }
+            }
+        },
+        interaction: {
+            mode: 'nearest',
+            intersect: false
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.05)' },
+                ticks: {
+                    color: '#6c757d',
+                    callback: function(value) {
+                        return 'R' + value;
+                    }
+                }
+            },
+            x: {
+                grid: { display: false },
+                ticks: { color: '#6c757d' }
+            }
+        }
+    }
+});
+
+// Product Chart (Bar)
+const ctxProduct = document.getElementById('productChart').getContext('2d');
+new Chart(ctxProduct, {
+    type: 'bar',
+    data: {
+        labels: {{ product_chart_labels|safe }},
+        datasets: {{ product_chart_data|safe }}
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+                backgroundColor: 'rgba(139, 77, 35, 0.95)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                borderColor: '#8b4d23',
+                borderWidth: 2,
+                padding: 12,
+                callbacks: {
+                    label: function(context) {
+                        return 'R' + context.parsed.y.toFixed(2);
+                    }
+                }
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(0,0,0,0.05)' },
+                ticks: {
+                    color: '#6c757d',
+                    callback: function(value) {
+                        return 'R' + value;
+                    }
+                }
+            },
+            x: {
+                grid: { display: false },
+                ticks: {
+                    color: '#6c757d',
+                    maxRotation: 45,
+                    minRotation: 45
+                }
+            }
+        }
+    }
+});
+</script>
+
+{% endblock %}

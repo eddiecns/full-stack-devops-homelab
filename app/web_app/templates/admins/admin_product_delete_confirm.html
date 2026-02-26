@@ -1,0 +1,20 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Delete Product - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-trash me-2"></i>Delete Product</h2>
+    <p>Are you sure you want to delete product ID: {{ product.id }}?</p>
+</div>
+
+<div class="card p-4 mb-4 text-center">
+    <p><strong>{{ product.name }}</strong></p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger me-2">Yes, Delete</button>
+        <a href="{% url 'admin_all_products' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

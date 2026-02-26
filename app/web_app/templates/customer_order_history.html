@@ -1,0 +1,149 @@
+{% extends "base_sidebar.html" %}
+{% load static %}
+
+{% block title %}Customer Order History{% endblock %}
+
+{% block sidebar %}
+
+<!-- Contact page specific CSS -->
+<link rel="stylesheet" href="{% static 'css/customer.css' %}">
+
+<h6 class="sidebar-section-title">My Account</h6>
+<ul class="nav flex-column">
+    <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}"><i class="bi bi-person-circle me-2"></i> Profile Info</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'customer_orders' %}"><i class="bi bi-cart-check me-2"></i>Active Orders</a></li>
+    <li class="nav-item"><a class="nav-link active" href="{% url 'customer_order_history' %}"><i class="bi bi-clock-history me-2"></i> Order History</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'cart' %}"><i class="bi bi-bag me-2"></i> Cart</a></li>
+</ul>
+
+<h6 class="sidebar-section-title">Navigation</h6>
+<ul class="nav flex-column mb-2">
+    <li class="nav-item"><a class="nav-link" href="{% url 'index' %}"><i class="bi bi-house me-2"></i> Home</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'about' %}"><i class="bi bi-info-circle me-2"></i> About</a></li>
+    <li class="nav-item"><a class="nav-link" href="{% url 'contact' %}"><i class="bi bi-envelope me-2"></i> Contact</a></li>
+</ul>
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-clock-history me-2"></i> My Order History</h2>
+    <p>View your completed and cancelled orders</p>
+</div>
+
+<!-- Buttons Row -->
+<div class="d-flex justify-content-end mb-3">
+    <a href="{% url 'print_customer_order_history' %}" target="_blank" class="btn btn-outline-secondary btn-sm me-2">
+        <i class="bi bi-printer"></i> Print
+    </a>
+    <a href="{% url 'download_customer_order_history' %}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-download"></i> Download
+    </a>
+</div>
+
+{% if not completed_orders and not cancelled_orders %}
+    <div class="orders-card">
+        <div class="empty-state">
+            <i class="bi bi-clock-history"></i>
+            <h4>No Order History</h4>
+            <p>You don't have any completed or cancelled orders yet.</p>
+            <a href="{% url 'index' %}" class="btn-browse">Browse Products</a>
+        </div>
+    </div>
+{% endif %}
+
+{# ✅ Completed Orders #}
+{% if completed_orders %}
+<div class="orders-card mb-4">
+    <h4 class="section-title">
+        <i class="bi bi-check-circle-fill"></i>
+        Completed Orders
+    </h4>
+
+    {% for order in completed_orders %}
+        <div class="order-item">
+            <div class="order-header">
+                <div>
+                    <div class="order-number">
+                        <i class="bi bi-receipt me-2"></i>Order #{{ order.id }}
+                    </div>
+                    <div class="order-date">
+                        <i class="bi bi-calendar3 me-1"></i>{{ order.created_at|date:"F d, Y • H:i" }}
+                    </div>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="badge badge-success">
+                        <i class="bi bi-check-circle me-1"></i>Paid
+                    </span>
+                    <a href="{% url 'invoice' order.id %}" class="btn btn-sm btn-primary" target="_blank">
+                        <i class="bi bi-file-text me-1"></i>View Invoice
+                    </a>
+                </div>
+            </div>
+
+            <div class="order-details">
+                <div class="order-detail-item">
+                    <span class="order-detail-label">
+                        <i class="bi bi-geo-alt me-1"></i>Delivery Address:
+                    </span>
+                    <span class="order-detail-value">{{ order.delivery_address }}</span>
+                </div>
+
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Total:</span>
+                    <span class="order-total">R{{ order.total_price|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{# ❌ Cancelled Orders #}
+{% if cancelled_orders %}
+<div class="orders-card">
+    <h4 class="section-title">
+        <i class="bi bi-x-circle-fill"></i>
+        Cancelled Orders
+    </h4>
+
+    {% for order in cancelled_orders %}
+        <div class="order-item">
+            <div class="order-header">
+                <div>
+                    <div class="order-number">
+                        <i class="bi bi-receipt me-2"></i>Order #{{ order.id }}
+                    </div>
+                    <div class="order-date">
+                        <i class="bi bi-calendar3 me-1"></i>{{ order.created_at|date:"F d, Y • H:i" }}
+                    </div>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <span class="badge badge-danger">
+                        <i class="bi bi-x-circle me-1"></i>Cancelled
+                    </span>
+                    <a href="{% url 'invoice' order.id %}" class="btn btn-sm btn-secondary" target="_blank">
+                        <i class="bi bi-file-text me-1"></i>View Invoice
+                    </a>
+                </div>
+            </div>
+
+            <div class="order-details">
+                <div class="order-detail-item">
+                    <span class="order-detail-label">
+                        <i class="bi bi-geo-alt me-1"></i>Delivery Address:
+                    </span>
+                    <span class="order-detail-value">{{ order.delivery_address }}</span>
+                </div>
+
+                <div class="order-detail-item">
+                    <span class="order-detail-label">Total:</span>
+                    <span class="order-total">R{{ order.total_price|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

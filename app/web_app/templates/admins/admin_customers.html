@@ -1,0 +1,110 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Manage Customers - Admin{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-header">
+    <h2><i class="bi bi-people me-2"></i>Manage Customers</h2>
+    <p>View, edit, and manage all registered customers</p>
+</div>
+
+<!-- Filter/Search -->
+<div class="admin-chart-container mb-4">
+    <form method="get" class="row g-3">
+        <div class="col-md-6">
+            <input type="text" name="search" class="form-control" placeholder="Search customers..." value="{{ request.GET.search }}">
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>Inactive</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-admin-primary w-100">
+                <i class="bi bi-funnel me-2"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Customers Table -->
+<div class="admin-table">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>Customer ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Joined</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>#{{ customer.id }}</td>
+                <td>{{ customer.username }}</td>
+                <td>{{ customer.email }}</td>
+                <td>{{ customer.date_joined|date:"d M Y" }}</td>
+                <td>
+                    {% if customer.is_active %}
+                        <span class="badge admin-badge active">Active</span>
+                    {% else %}
+                        <span class="badge admin-badge inactive">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="admin-action-icons">
+                        <a href="{% url 'admin_customer_detail' customer.id %}" class="btn-view" title="View Details">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <a href="{% url 'admin_customer_edit' customer.id %}" class="btn-edit" title="Edit Customer">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <form action="{% url 'admin_customer_delete' customer.id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-delete" title="Delete Customer" onclick="return confirm('Are you sure you want to delete this customer?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">No customers found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if customers.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if customers.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ customers.previous_page_number }}">Previous</a>
+        </li>
+        {% endif %}
+
+        <li class="page-item active">
+            <span class="page-link">{{ customers.number }}</span>
+        </li>
+
+        {% if customers.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ customers.next_page_number }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

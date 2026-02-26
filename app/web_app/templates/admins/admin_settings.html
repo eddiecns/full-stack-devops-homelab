@@ -1,0 +1,229 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Admin Settings{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-header mb-4">
+    <h2><i class="bi bi-gear-fill me-2"></i>System Settings</h2>
+    <p>Manage platform configuration, localization, and security preferences.</p>
+</div>
+
+<!-- 🌍 Localization Settings -->
+<div class="admin-card mb-4 p-4">
+    <h5><i class="bi bi-translate me-2"></i>Localization</h5>
+    <p class="text-muted mb-3">Customize the platform's language, currency, and timezone.</p>
+    <form method="post" action="#">
+        {% csrf_token %}
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="language" class="form-label">Language</label>
+                <select id="language" name="language" class="form-select">
+                    <option selected>English</option>
+                    <option>Afrikaans</option>
+                    <option>French</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="currency" class="form-label">Currency</label>
+                <select id="currency" name="currency" class="form-select">
+                    <option selected>ZAR (Rand)</option>
+                    <option>USD (US Dollar)</option>
+                    <option>EUR (Euro)</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="timezone" class="form-label">Timezone</label>
+                <select id="timezone" name="timezone" class="form-select">
+                    <option selected>Africa/Johannesburg (GMT+2)</option>
+                    <option>UTC</option>
+                    <option>Europe/London (GMT+0)</option>
+                </select>
+            </div>
+        </div>
+        <div class="mt-3 text-left">
+            <button type="submit" class="btn btn-admin-primary">
+                <i class="bi bi-save me-2"></i>Save Localization
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- 🧰 System Maintenance / Backup -->
+<div class="admin-card mb-4 p-4">
+    <h5><i class="bi bi-database-up me-2"></i>System Maintenance</h5>
+    <p class="text-muted mb-3">Manage backups and housekeeping tasks to keep the platform healthy.</p>
+    <form method="post" action="#">
+        {% csrf_token %}
+        <div class="d-flex justify-content-left flex-wrap align-items-left gap-3 mt-3">
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-cloud-arrow-down me-2"></i>Run Backup Now
+            </button>
+            <select class="form-select w-auto" name="backup_schedule">
+                <option selected>Auto Backup: Weekly</option>
+                <option>Daily</option>
+                <option>Monthly</option>
+                <option>Off</option>
+            </select>
+            <a href="#" class="btn btn-outline-secondary">
+                <i class="bi bi-download me-2"></i>Download Last Backup
+            </a>
+        </div>
+    </form>
+</div>
+
+<!-- 📧 Email & Notifications -->
+<div class="admin-card mb-4 p-4">
+    <h5><i class="bi bi-envelope-check me-2"></i>Email & Notifications</h5>
+    <p class="text-muted mb-3">Control where alerts and system notifications are sent.</p>
+    <form method="post" action="#">
+        {% csrf_token %}
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="admin_email" class="form-label">Admin Email</label>
+                <input type="email" id="admin_email" class="form-control" value="admin@bakerymarket.com">
+            </div>
+            <div class="col-md-6">
+                <label for="support_email" class="form-label">Support Contact Email</label>
+                <input type="email" id="support_email" class="form-control" value="support@bakerymarket.com">
+            </div>
+            <div class="col-md-12">
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="alert_emails" checked>
+                    <label class="form-check-label" for="alert_emails">
+                        Send email alerts for system errors or critical events
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="mt-3 text-left">
+            <button type="submit" class="btn btn-admin-primary">
+                <i class="bi bi-save me-2"></i>Save Email Settings
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- 🔐 Security Settings -->
+<div class="admin-card mb-4 p-4">
+    <h5><i class="bi bi-shield-lock me-2"></i>Security</h5>
+    <p class="text-muted mb-3">Manage password policies, 2FA, and secure access controls.</p>
+    <form method="post" action="#">
+        {% csrf_token %}
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="session_timeout" class="form-label">Session Timeout (minutes)</label>
+                <input type="number" id="session_timeout" class="form-control" value="30">
+            </div>
+            <div class="col-md-6">
+                <label for="password_expiry" class="form-label">Password Expiry (days)</label>
+                <input type="number" id="password_expiry" class="form-control" value="90">
+            </div>
+        </div>
+        <div class="form-check mt-3">
+            <input class="form-check-input" type="checkbox" id="force_2fa" checked>
+            <label class="form-check-label" for="force_2fa">
+                Require Two-Factor Authentication for Admin and Vendors
+            </label>
+        </div>
+        <div class="mt-3 text-left">
+            <button type="submit" class="btn btn-admin-primary">
+                <i class="bi bi-shield-check me-2"></i>Save Security Settings
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- 👤 Admin Account -->
+<div class="admin-card mb-4 p-4">
+    <h5><i class="bi bi-person-circle me-2"></i>Admin Account</h5>
+    <p class="text-muted mb-3">Update your personal credentials and login details.</p>
+    <form method="post" action="#">
+        {% csrf_token %}
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" class="form-control" value="admin">
+            </div>
+            <div class="col-md-6">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" id="email" class="form-control" value="admin@bakerymarket.com">
+            </div>
+            <div class="col-md-6">
+                <label for="password" class="form-label">New Password</label>
+                <input type="password" id="password" class="form-control" placeholder="••••••••">
+            </div>
+            <div class="col-md-6">
+                <label for="password_confirm" class="form-label">Confirm Password</label>
+                <input type="password" id="password_confirm" class="form-control" placeholder="••••••••">
+            </div>
+        </div>
+        <div class="mt-3 text-left">
+            <button type="submit" class="btn btn-admin-primary">
+                <i class="bi bi-save me-2"></i>Update Account
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Notification Settings -->
+<div class="admin-card mb-4 p-4">
+    <h5><i class="bi bi-bell-fill me-2"></i>Notifications</h5>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" checked>
+            <label class="form-check-label">Email me when a new vendor registers</label>
+        </div>
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" checked>
+            <label class="form-check-label">Notify on new orders</label>
+        </div>
+        <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox">
+            <label class="form-check-label">Send weekly activity summary</label>
+        </div>
+        <div class="mt-4 text-left">
+            <button type="submit" class="btn btn-admin-primary">
+                <i class="bi bi-save me-2"></i>Save Notification Preferences
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Support & Info -->
+<div class="admin-card mb-4 p-4">
+    <h5><i class="bi bi-info-circle me-2"></i>Support & Info</h5>
+    <p class="text-muted mb-3">Platform details, developer info, and support resources.</p>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <label class="form-label">Django Version</label>
+            <input type="text" class="form-control" value="{{ django_version }}" readonly>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Python Version</label>
+            <input type="text" class="form-control" value="{{ python_version }}" readonly>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">App Version</label>
+            <input type="text" class="form-control" value="{{ app_version }}" readonly>
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">Developer</label>
+            <input type="text" class="form-control" value="{{ developer }}" readonly>
+        </div>
+        <div class="col-md-12">
+            <label class="form-label">Support Contact</label>
+            <input type="text" class="form-control" value="{{ support_contact }}" readonly>
+        </div>
+    </div>
+    <div class="mt-3 text-left">
+        <a href="mailto:{{ support_contact }}" class="btn btn-admin-primary">
+            <i class="bi bi-envelope me-2"></i>Contact Support
+        </a>
+    </div>
+</div>
+
+
+{% endblock %}

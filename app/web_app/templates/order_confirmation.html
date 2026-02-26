@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmation{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card shadow-sm p-4 text-center">
+        <h1 class="text-success mb-4">✅ Thank You for Your Order!</h1>
+        <p>Your order <strong>#{{ order.id }}</strong> has been placed successfully.</p>
+        <p><strong>Delivery Address:</strong> {{ order.delivery_address }}</p>
+        <p><strong>Order Date:</strong> {{ order.created_at|date:"d M Y H:i" }}</p>
+
+        <h3 class="mt-4">Order Summary</h3>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in order_items %}
+                <tr>
+                    <td>{{ item.product.name }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>R{{ item.price|floatformat:2 }}</td>
+                    <td>R{{ item.subtotal|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+                <tr class="fw-bold">
+                    <td colspan="3">Total</td>
+                    <td>R{{ order.total_price|floatformat:2 }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="mt-4">
+            <a href="{% url 'index' %}" class="btn btn-primary">Back to Home</a>
+            <a href="{% url 'cart' %}" class="btn btn-outline-secondary">View Cart</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

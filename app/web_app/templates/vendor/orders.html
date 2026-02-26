@@ -1,0 +1,147 @@
+{% extends "base_sidebar.html" %}
+{% load static %}
+
+{% block title %}Pending Orders{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-hourglass-split me-2"></i> Pending Orders</h2>
+    <p>Review and process orders awaiting payment confirmation</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="profile-card">
+
+            {% if orders %}
+                <!-- Pending Orders Stats -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="customer-stat-card">
+                            <div class="stat-icon stat-pending">
+                                <i class="bi bi-clock-history"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6>Pending Orders</h6>
+                                <p class="stat-value">{{ orders|length }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="customer-stat-card">
+                            <div class="stat-icon stat-revenue">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6>Pending Value</h6>
+                                <p class="stat-value">R{{ pending_total|default:"0" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Orders Table -->
+                <div class="table-responsive">
+                    <table class="table activity-table pending-orders-table">
+                        <thead>
+                            <tr>
+                                <th><i class="bi bi-hash me-2"></i>Order #</th>
+                                <th><i class="bi bi-person me-2"></i>Customer</th>
+                                <th><i class="bi bi-currency-dollar me-2"></i>Total</th>
+                                <th><i class="bi bi-geo-alt me-2"></i>Delivery Address</th>
+                                <th><i class="bi bi-info-circle me-2"></i>Status</th>
+                                <th><i class="bi bi-gear me-2"></i>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr class="activity-row pending-order-row">
+                                <td class="order-number">
+                                    <span class="badge-order">#{{ order.id }}</span>
+                                </td>
+                                <td class="customer-name-cell">
+                                    <div class="customer-info">
+                                        <div class="customer-avatar-small">
+                                            {{ order.user.username|first|upper }}
+                                        </div>
+                                        <span>{{ order.user.username }}</span>
+                                    </div>
+                                </td>
+                                <td class="total-cell">
+                                    <strong class="order-total">R{{ order.total_price }}</strong>
+                                </td>
+                                <td class="address-cell">
+                                    <i class="bi bi-house-door text-muted me-1"></i>
+                                    <span class="address-text">{{ order.delivery_address }}</span>
+                                </td>
+                                <td class="status-cell">
+                                    <span class="status-badge status-pending">
+                                        <i class="bi bi-hourglass-split me-1"></i>
+                                        Pending
+                                    </span>
+                                </td>
+                                <td class="action-cell">
+                                    <form action="{% url 'mark_order_paid' order.id %}" method="post" class="inline-form">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-mark-paid">
+                                            <i class="bi bi-check-circle me-1"></i> Mark as Paid
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination (if needed) -->
+                {% if orders.has_other_pages %}
+                <nav aria-label="Pending orders pagination" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if orders.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orders.previous_page_number }}">
+                                <i class="bi bi-chevron-left"></i> Previous
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for num in orders.paginator.page_range %}
+                        <li class="page-item {% if orders.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if orders.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ orders.next_page_number }}">
+                                Next <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+
+            {% else %}
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <i class="bi bi-check-circle"></i>
+                    <h4>All Caught Up!</h4>
+                    <p>You don't have any pending orders at the moment. New orders awaiting payment will appear here.</p>
+                    <a href="{% url 'customer_orders' %}" class="btn-browse">
+                        <i class="bi bi-cart-check me-2"></i> View All Orders
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

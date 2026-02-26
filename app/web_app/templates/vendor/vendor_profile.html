@@ -1,0 +1,135 @@
+{% extends "base_vendor.html" %}
+{% load static %}
+
+{% block title %}Vendor Profile{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+{% endblock %}
+
+{% block vendor_content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-building me-2"></i> Vendor Profile</h2>
+    <p>View your business information and account details</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="profile-card">
+
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-person-badge"></i>
+                    Personal Information
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">First Name</label>
+                        <div class="profile-info">
+                            <i class="bi bi-person"></i>
+                            <span>{{ user.first_name|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Last Name</label>
+                        <div class="profile-info">
+                            <i class="bi bi-person"></i>
+                            <span>{{ user.last_name|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Company Information Section -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-briefcase"></i>
+                    Company Information
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Company Name</label>
+                        <div class="profile-info">
+                            <i class="bi bi-building"></i>
+                            <span>{{ profile.company_name|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Vendor ID</label>
+                        <div class="profile-info">
+                            <i class="bi bi-upc-scan"></i>
+                            <span>{{ profile.vendor_id|default:"Not assigned" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Information Section -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-telephone"></i>
+                    Contact Information
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Email</label>
+                        <div class="profile-info">
+                            <i class="bi bi-envelope"></i>
+                            <span>{{ user.email|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Telephone</label>
+                        <div class="profile-info">
+                            <i class="bi bi-telephone-fill"></i>
+                            <span>{{ profile.phone|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Mobile</label>
+                        <div class="profile-info">
+                            <i class="bi bi-phone"></i>
+                            <span>{{ profile.mobile|default:"Not provided" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business Address Section -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-geo-alt"></i>
+                    Business Address
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <label class="form-label">Address</label>
+                        <div class="profile-info address-info">
+                            <i class="bi bi-house"></i>
+                            <span>{{ profile.delivery_address|default:"No business address provided"|linebreaks }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Button -->
+            <div class="text-center mt-4">
+                <a href="{% url 'vendor_edit_profile' %}" class="btn-save">
+                    <i class="bi bi-pencil-square me-2"></i> Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

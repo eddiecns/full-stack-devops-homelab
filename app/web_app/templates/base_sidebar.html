@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+{% endblock %}
+
+{% block content_wrapper %}
+<div class="container-fluid mt-4">
+    <div class="row g-0">
+
+        <!-- Sidebar -->
+        <div class="col-md-3 sidebar vendor">
+            {% block sidebar %}
+            <!-- Default empty sidebar -->
+            {% endblock %}
+        </div>
+
+        <!-- Page Content -->
+        <div class="col-md-9 content-area">
+            <div class="container-fluid px-4">
+                {{ block.super }}  {# keeps flash messages etc. from base.html #}
+                {% block sidebar_content %}
+                <!-- Child templates put their main content here -->
+                {% endblock %}
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

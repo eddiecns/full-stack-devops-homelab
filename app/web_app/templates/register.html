@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Create an Account</h2>
+        </div>
+
+        <div class="login-body">
+
+            <!-- Add messages here -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" style="background: #d1fae5; color: #065f46;
+                                padding: 12px; border-radius: 8px;
+                                margin-bottom: 20px; font-size: 14px; border: 1px solid #34d399;">
+                        {{ message|safe }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Username + Email -->
+                <div class="form-row">
+                    <div class="form-group flex-half">
+                        <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                        <div class="input-icon">
+                            {{ form.username|add_class:"form-control"|attr:"placeholder:Enter Username" }}
+                        </div>
+                        {% if form.username.errors %}
+                            <small style="color: #dc2626;">{{ form.username.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group flex-half">
+                        <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                        <div class="input-icon">
+                            {{ form.email|add_class:"form-control"|attr:"placeholder:Enter Email Address" }}
+                        </div>
+                        {% if form.email.errors %}
+                            <small style="color: #dc2626;">{{ form.email.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Cell Number - Commented out for future use -->
+                {% comment %}
+                <div class="form-group">
+                    <label for="{{ form.cell.id_for_label }}">{{ form.cell.label }}</label>
+                    <div class="input-icon">
+                        {{ form.cell|add_class:"form-control"|attr:"placeholder:Enter Mobile Number" }}
+                    </div>
+                    {% if form.cell.errors %}
+                        <small style="color: #dc2626;">{{ form.cell.errors.0 }}</small>
+                    {% endif %}
+                </div>
+                {% endcomment %}
+
+                <!-- User Type -->
+                <div class="form-group">
+                    <label>{{ form.user_type.label }}</label>
+                    <div class="radio-group">
+                        {% for choice in form.user_type %}
+                            <label class="radio-option">
+                                {{ choice.tag }}
+                                {{ choice.choice_label }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                    {% if form.user_type.errors %}
+                        <small style="color: #dc2626;">{{ form.user_type.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <!-- Password + Confirm Password -->
+                <div class="form-row">
+                    <div class="form-group flex-half">
+                        <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+                        <div class="input-icon">
+                            {{ form.password1|add_class:"form-control"|attr:"placeholder:Create a password" }}
+                        </div>
+                        {% if form.password1.errors %}
+                            <small style="color: #dc2626;">{{ form.password1.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group flex-half">
+                        <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+                        <div class="input-icon">
+                            {{ form.password2|add_class:"form-control"|attr:"placeholder:Confirm your password" }}
+                        </div>
+                        {% if form.password2.errors %}
+                            <small style="color: #dc2626;">{{ form.password2.errors.0 }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Non-field errors -->
+                {% if form.non_field_errors %}
+                    <div style="background: #fee2e2; color: #dc2626;
+                                padding: 12px; border-radius: 8px;
+                                margin-bottom: 20px; font-size: 14px;">
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                {% endif %}
+
+                <button type="submit" class="btn-login">Register</button>
+            </form>
+        </div>
+
+        <div class="login-footer">
+            Already have an account? <a href="{% url 'login' %}">Login here</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

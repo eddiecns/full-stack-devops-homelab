@@ -1,0 +1,112 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Edit Product - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-pencil me-2"></i>Edit Product</h2>
+    <p>Update product details for ID: {{ product.id }}</p>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <!-- Product Details Card -->
+    <div class="admin-card mb-3">
+        <h5 class="mb-3">Product Details</h5>
+
+        <!-- Product Name & Category -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="id_name" class="form-label d-block">Product Name</label>
+                {{ form.name }}
+                {{ form.name.errors }}
+            </div>
+            <div class="col-md-6">
+                <label for="id_category" class="form-label d-block">Category</label>
+                {{ form.category }}
+                {{ form.category.errors }}
+            </div>
+        </div>
+
+        <!-- Vendor & Price -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="id_vendor" class="form-label d-block">Vendor</label>
+                {{ form.vendor }}
+                {{ form.vendor.errors }}
+            </div>
+            <div class="col-md-6">
+                <label for="id_price" class="form-label d-block">Price</label>
+                {{ form.price }}
+                {{ form.price.errors }}
+            </div>
+        </div>
+
+        <!-- Stock & Availability -->
+        <div class="row mb-0">
+            <div class="col-md-6">
+                <label for="id_stock_quantity" class="form-label d-block">Stock Quantity</label>
+                {{ form.stock_quantity }}
+                {{ form.stock_quantity.errors }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label d-block">Availability</label>
+                <div class="form-check">
+                    {{ form.availability }}
+                    <label for="id_availability" class="form-check-label">Active</label>
+                </div>
+                {{ form.availability.errors }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Description and Image Cards Side by Side -->
+    <div class="row mb-3">
+        <!-- Description Card -->
+        <div class="col-md-6">
+            <div class="admin-card h-100">
+                <h5 class="mb-3">Description</h5>
+                <div>
+                    <label for="id_description" class="form-label d-block">Product Description</label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Image Card -->
+        <div class="col-md-6">
+            <div class="admin-card h-100">
+                <h5 class="mb-3">Product Image</h5>
+                {% if product.image %}
+                    <div class="mb-3">
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 6px; border: 1px solid #dee2e6;">
+                    </div>
+                {% endif %}
+                <div>
+                    <label for="id_image" class="form-label d-block">Upload Image</label>
+                    {{ form.image }}
+                    {{ form.image.errors }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mb-3">
+        <button type="submit" class="btn btn-admin-primary">Save Changes</button>
+        <a href="{% url 'admin_all_products' %}" class="btn btn-admin-secondary ms-2">Cancel</a>
+    </div>
+</form>
+
+<style>
+    #id_description {
+        height: 150px;
+        resize: vertical;
+        width: 100%;
+    }
+</style>
+{% endblock %}

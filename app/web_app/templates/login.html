@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/forms.css' %}">
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2>Welcome Back</h2>
+            <p>Please login to your account</p>
+        </div>
+
+        <div class="login-body">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div id="snackbar" class="show {% if message.tags %}{{ message.tags }}{% endif %}">
+                        {{ message }}
+                        <span class="close-btn" onclick="closeSnackbar()">×</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                    <div class="input-icon">
+                        {{ form.username|add_class:"form-control"|attr:"placeholder:Enter Username" }}
+                    </div>
+                    {% if form.username.errors %}
+                        <small style="color: #dc2626;">{{ form.username.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+                    <div class="input-icon">
+                        {{ form.password|add_class:"form-control"|attr:"placeholder:Enter Password" }}
+                    </div>
+                    {% if form.password.errors %}
+                        <small style="color: #dc2626;">{{ form.password.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.vendor_id.id_for_label }}">{{ form.vendor_id.label }}</label>
+                    <div class="input-icon">
+                        {{ form.vendor_id|add_class:"form-control"|attr:"placeholder:Enter Vendor ID" }}
+                    </div>
+                    {% if form.vendor_id.errors %}
+                        <small style="color: #dc2626;">{{ form.vendor_id.errors.0 }}</small>
+                    {% endif %}
+                </div>
+
+                {% if form.non_field_errors %}
+                    <div style="background: #fee2e2; color: #dc2626;
+                                padding: 12px; border-radius: 8px;
+                                margin-bottom: 20px; font-size: 14px;">
+                        {{ form.non_field_errors.0 }}
+                    </div>
+                {% endif %}
+
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+        </div>
+
+        <div class="login-footer">
+            Don't have an account? <a href="{% url 'register' %}">Register here</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function closeSnackbar() {
+        const snackbar = document.getElementById("snackbar");
+        if (snackbar) {
+            snackbar.classList.remove("show");
+        }
+    }
+
+    window.addEventListener("load", () => {
+        const snackbar = document.getElementById("snackbar");
+        if (snackbar && snackbar.classList.contains("show")) {
+            setTimeout(() => {
+                snackbar.classList.remove("show");
+            }, 4000);
+        }
+    });
+</script>
+{% endblock %}

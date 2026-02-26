@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}About Us{% endblock %}
+
+{% block content %}
+
+<!-- Custom CSS -->
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+<!-- Hero Section -->
+<div class="hero-section d-flex align-items-center justify-content-center">
+    <div class="hero-content text-center text-white px-4">
+        <h1 class="animate-fade-in">About Us</h1>
+        <p class="animate-fade-in" style="animation-delay: 0.2s;">Connecting Bakeries and Customers Through Technology</p>
+    </div>
+</div>
+
+<!-- Story Section -->
+<section class="story-section">
+    <div class="container">
+        <div class="row g-5 align-items-center">
+            <div class="col-lg-5 animate-scale-up">
+                <img src="{% static 'images/team.jpeg' %}"
+                     alt="Our Team"
+                     class="story-image">
+            </div>
+
+            <div class="col-lg-7 story-content animate-fade-in" style="animation-delay: 0.3s;">
+                <h3>Empowering Bakeries with Technology</h3>
+                <p>
+                    At <strong>Nyarie's Bakery</strong>, we empower local bakeries to thrive in the digital age. Traditional
+                    bakeries often face challenges like limited customer access, sold-out favorites, reliance on cash
+                    payments, and lack of online presence. Our platform bridges this gap by providing an easy-to-use
+                    online marketplace where customers can discover, order, and enjoy fresh bakery products with convenience.
+                    Founded by a Eddie as a student with expertise in <strong>business, software, AI, IT,
+                    and supply chain</strong>, <strong>Nyarie's Bakery</strong> unites artisanal skill with modern technology
+                    to strengthen the connection between bakeries and their communities.
+                </p>
+                <p>
+                    <strong>Nyarie's Bakery</strong> is not a bakery itself - it’s the digital street where bakeries set up
+                    shop and customers come to explore, order, and enjoy fresh products. Think of it as a marketplace
+                    that seamlessly blends tradition with innovation.
+                </p>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Platform Features -->
+<section class="platform-section">
+    <div class="container">
+        <h3 class="text-center animate-fade-in">Our Platform Offers</h3>
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6 animate-scale-up" style="animation-delay: 0.1s;">
+                <div class="feature-card">
+                    <i class="bi bi-phone"></i>
+                    <h5>Mobile-Friendly Storefront</h5>
+                    <p>Modern and responsive design so bakeries shine on any device.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 animate-scale-up" style="animation-delay: 0.2s;">
+                <div class="feature-card">
+                    <i class="bi bi-box-seam"></i>
+                    <h5>Live Stock Updates</h5>
+                    <p>Always accurate inventory so customers see fresh products only.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 animate-scale-up" style="animation-delay: 0.3s;">
+                <div class="feature-card">
+                    <i class="bi bi-cart-check"></i>
+                    <h5>Seamless Ordering</h5>
+                    <p>Options for delivery or pickup with a simple, secure checkout.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 animate-scale-up" style="animation-delay: 0.4s;">
+                <div class="feature-card">
+                    <i class="bi bi-credit-card"></i>
+                    <h5>Trusted Payments</h5>
+                    <p>Secure payments through Stripe, PayFast and Yoco.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 animate-scale-up" style="animation-delay: 0.5s;">
+                <div class="feature-card">
+                    <i class="bi bi-tools"></i>
+                    <h5>Scalable & Affordable</h5>
+                    <p>Tools designed for small and growing bakeries.</p>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6 animate-scale-up" style="animation-delay: 0.6s;">
+                <div class="feature-card">
+                    <i class="bi bi-award"></i>
+                    <h5>Reliable Support</h5>
+                    <p>Dedicated team to help bakeries succeed online.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Promise -->
+        <div class="promise-section animate-fade-in" style="animation-delay: 0.7s;">
+            <h3 class="text-center">Our Promise</h3>
+            <p class="text-center">
+                Just as bakers set high standards for their craft, we've set the same standard for our platform.
+                We focus on <strong>reliability, security, and simplicity</strong> - ensuring that every order placed,
+                every product displayed, and every transaction made is seamless.
+            </p>
+            <div class="promise-highlight">
+                Nyarie's Bakery is where <em>technology meets tradition</em> - giving bakeries the digital tools they deserve
+                and customers the convenience they expect. 🥖🍩🍰
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="team-section">
+    <div class="container">
+        <h3 class="text-center animate-fade-in">Meet Our Team</h3>
+        <div class="row g-4">
+            <!-- Member 1 -->
+            <div class="col-lg-4 col-md-6 animate-scale-up" style="animation-delay: 0.1s;">
+                <div class="team-card">
+                    <img src="{% static 'images/team_member1.jpg' %}" alt="Alice Johnson">
+                    <h5>Eddie</h5>
+                    <p>CEO</p>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com"><i class="bi bi-linkedin"></i></a>
+                        <a href="https://x.com"><i class="bi bi-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member 2 -->
+            <div class="col-lg-4 col-md-6 animate-scale-up" style="animation-delay: 0.2s;">
+                <div class="team-card">
+                    <img src="{% static 'images/team_member2.jpg' %}" alt="Bob Smith">
+                    <h5>Nyarie</h5>
+                    <p>Managing Director</p>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com"><i class="bi bi-linkedin"></i></a>
+                        <a href="https://x.com"><i class="bi bi-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Member 3 -->
+            <div class="col-lg-4 col-md-6 animate-scale-up" style="animation-delay: 0.3s;">
+                <div class="team-card">
+                    <img src="{% static 'images/team_member3.jpg' %}" alt="Carol Lee">
+                    <h5>Denny</h5>
+                    <p>Marketing Manager</p>
+                    <div class="social-links">
+                        <a href="https://www.linkedin.com"><i class="bi bi-linkedin"></i></a>
+                        <a href="https://x.com"><i class="bi bi-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+{% endblock %}

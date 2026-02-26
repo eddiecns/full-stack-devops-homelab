@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admindash.css' %}">
+<style>
+    /* Force navbar to move right on admin pages */
+    nav.navbar,
+    .navbar {
+        margin-left: 280px !important;
+        width: calc(100% - 280px) !important;
+    }
+
+    @media (max-width: 992px) {
+        nav.navbar,
+        .navbar {
+            margin-left: 250px !important;
+            width: calc(100% - 250px) !important;
+        }
+    }
+
+    @media (max-width: 768px) {
+        nav.navbar,
+        .navbar {
+            margin-left: 0 !important;
+            width: 100% !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{# This replaces base.html's default wrapper with a full admin layout #}
+{% block content_wrapper %}
+<!-- Admin Sidebar -->
+<div class="sidebar admin">
+    {% block admin_sidebar %}
+    <div class="sidebar-header">
+        <i class="bi bi-shield-check"></i>
+        <h5>Admin Portal</h5>
+    </div>
+
+    <h6 class="px-3 mt-3 mb-2 text-muted text-uppercase small">Overview</h6>
+    <ul class="nav flex-column">
+        <li><a class="nav-link" href="{% url 'admin_dashboard' %}"><i class="bi bi-speedometer2 me-2"></i> Dashboard</a></li>
+        <li><a class="nav-link" href="{% url 'admin_all_products' %}"><i class="bi bi-box-seam me-2"></i> All Products</a></li>
+        <li><a class="nav-link" href="{% url 'admin_all_orders' %}"><i class="bi bi-cart-check me-2"></i> All Orders</a></li>
+        <li><a class="nav-link" href="{% url 'admin_analytics' %}"><i class="bi bi-graph-up-arrow me-2"></i> Analytics</a></li>
+    </ul>
+
+    <h6 class="px-3 mt-4 mb-2 text-muted text-uppercase small">User Management</h6>
+    <ul class="nav flex-column">
+        <li><a class="nav-link" href="{% url 'admin_vendors' %}"><i class="bi bi-shop me-2"></i> Manage Vendors</a></li>
+        <li><a class="nav-link" href="{% url 'admin_customers' %}"><i class="bi bi-people me-2"></i> Manage Customers</a></li>
+        <li><a class="nav-link" href="{% url 'vendor_activity_logs' %}"><i class="bi bi-list-check me-2"></i> Activity Logs</a></li>
+    </ul>
+
+    <h6 class="px-3 mt-4 mb-2 text-muted text-uppercase small">Platform</h6>
+    <ul class="nav flex-column mb-2">
+        <li><a class="nav-link" href="{% url 'admin_categories' %}"><i class="bi bi-tags me-2"></i> Categories</a></li>
+        <li><a class="nav-link" href="{% url 'admin_reports' %}"><i class="bi bi-file-earmark-text me-2"></i> Reports</a></li>
+        <li><a class="nav-link" href="{% url 'admin_settings' %}"><i class="bi bi-gear me-2"></i> Settings</a></li>
+    </ul>
+    {% endblock %}
+</div>
+
+<!-- Main Admin Content -->
+<div class="content-area admin">
+    {% block admin_content %}{% endblock %}
+</div>
+{% endblock %}

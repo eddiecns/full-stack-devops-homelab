@@ -1,0 +1,7 @@
+- name: Create temporary user
+  user:
+    name: eddie
+    shell: /bin/bash
+    create_home: yes
+    password_lock: yes
+    groups: wheel

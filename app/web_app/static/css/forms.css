@@ -1,0 +1,189 @@
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.login-card {
+    /* Layout & Sizing */
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    max-width: 400px;
+    width: 100%;
+    padding: 0;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.login-header {
+    /* Layout & Spacing */
+    background: #8b4d23;
+    padding: 15px 10px;
+    text-align: center;
+
+    /* Typography */
+    color: white;
+}
+
+.login-header h2 {
+    /* Typography */
+    margin: 0;
+    font-size: 24px; /* smaller header */
+    font-weight: 600;
+}
+
+.login-body {
+    /* Spacing */
+    padding: 15px 15px;
+}
+
+/* Horizontal row container for fields */
+.form-row {
+    /* Layout */
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.form-row .form-group {
+    /* Layout & Sizing */
+    flex: 1;
+    min-width: 160px;
+}
+
+.form-row .form-control {
+    /* Sizing */
+    width: 100%;
+}
+
+/* Default form-group styling */
+.form-group {
+    /* Spacing */
+    margin-bottom: 14px;
+}
+
+.form-group label {
+    /* Typography */
+    font-size: 13px;
+    font-weight: 500;
+    color: #344054;
+}
+
+/* Inputs */
+.form-control {
+    /* Spacing & Sizing */
+    padding: 7px 10px;
+    border-radius: 8px;
+
+    /* Border & Box */
+    border: 2px solid #e5e7eb;
+    box-sizing: border-box;
+
+    /* Typography */
+    font-size: 14px;
+}
+
+/* Button */
+.btn-login {
+    /* Sizing & Spacing */
+    width: 50%;
+    padding: 10px;
+    margin-top: 10px;
+    margin: 10px auto 0;
+    display: block;
+
+    /* Border & Radius */
+    border-radius: 8px;
+    border: none;
+
+    /* Typography */
+    font-size: 15px;
+    font-weight: 600;
+
+    /* Colors & Background */
+    background-color: #8b4d23;
+    color: white;
+
+    /* Cursor */
+    cursor: pointer;
+}
+
+/* Radio buttons */
+.radio-group {
+    /* Layout */
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    align-items: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+    .login-card {
+        /* Sizing */
+        max-width: 360px;
+    }
+
+    .form-row {
+        /* Layout adjustments */
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* Snackbar / messages */
+#snackbar {
+    /* Sizing & Spacing */
+    min-width: 250px;
+    max-width: 90%;
+    margin: 15px auto 0;
+    padding: 12px 18px;
+    border-radius: 8px;
+
+    /* Typography */
+    color: white;
+    font-weight: 500;
+    text-align: center;
+
+    /* Display & Position */
+    display: none;
+    position: relative;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+
+    /* Box shadow */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+#snackbar.show {
+    /* Display & Animation */
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+#snackbar.success { background-color: #ed8b13; }
+#snackbar.error   { background-color: #b91c1c; }
+#snackbar.warning { background-color: #f59e0b; }
+#snackbar.info    { background-color: #2563eb; }
+
+#snackbar .close-btn {
+    /* Positioning & Cursor */
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    cursor: pointer;
+
+    /* Typography */
+    font-weight: bold;
+}
+
+.form-control::placeholder {
+    /* Text alignment */
+    text-align: center;
+}
+
+.form-control {
+    /* Text alignment */
+    text-align: center;
+}

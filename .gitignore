@@ -1,0 +1,20 @@
+# Terraform secrets - never commit these
+*.tfvars
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+*.tfplan
+crash.log
+
+# Python
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+
+# Misc
+*.log
+*.tar.gz
+.DS_Store

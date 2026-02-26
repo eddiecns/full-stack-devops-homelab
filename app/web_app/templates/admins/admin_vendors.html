@@ -1,0 +1,109 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}All Vendors - Admin{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-header">
+    <h2><i class="bi bi-shop me-2"></i>All Vendors</h2>
+    <p>View and manage all registered vendors</p>
+</div>
+
+<!-- Filter/Search -->
+<div class="admin-chart-container mb-4">
+    <form method="get" class="row g-3">
+        <div class="col-md-6">
+            <input type="text" name="search" class="form-control" placeholder="Search vendors..." value="{{ request.GET.search }}">
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="active" {% if request.GET.status == "active" %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if request.GET.status == "inactive" %}selected{% endif %}>Inactive</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-admin-primary w-100">
+                <i class="bi bi-funnel me-2"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="admin-table">
+    <table class="table table-hover mb-0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th>Joined</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vendor in vendors %}
+            <tr>
+                <td>#{{ vendor.id }}</td>
+                <td>{{ vendor.username }}</td>
+                <td>{{ vendor.email }}</td>
+                <td>
+                    {% if vendor.is_active %}
+                        <span class="badge admin-badge active">Active</span>
+                    {% else %}
+                        <span class="badge admin-badge inactive">Inactive</span>
+                    {% endif %}
+                </td>
+                <td>{{ vendor.date_joined|date:"d M Y" }}</td>
+                <td>
+                    <div class="admin-action-icons">
+                        <!-- View Vendor Details -->
+                        <a href="{% url 'admin_vendor_detail' vendor.id %}" class="btn-view" title="View Details">
+                            <i class="bi bi-eye"></i>
+                        </a>
+                        <!-- Edit Vendor -->
+                        <a href="{% url 'admin_vendor_edit' vendor.id %}" class="btn-edit" title="Edit Vendor">
+                            <i class="bi bi-pencil"></i>
+                        </a>
+                        <!-- Delete Vendor -->
+                        <a href="{% url 'admin_vendor_delete' vendor.id %}" class="btn-delete" title="Delete Vendor">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">No vendors found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if vendors.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if vendors.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ vendors.previous_page_number }}&search={{ request.GET.search }}&status={{ request.GET.status }}">Previous</a>
+        </li>
+        {% endif %}
+
+        <li class="page-item active">
+            <span class="page-link">{{ vendors.number }}</span>
+        </li>
+
+        {% if vendors.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ vendors.next_page_number }}&search={{ request.GET.search }}&status={{ request.GET.status }}">Next</a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,52 @@
+---
+- name: Deploy Django app Docker image to all nodes
+  hosts: kube_master,kube_node
+  become: yes
+  vars:
+    image_name: "{{ image_name | default('django-bakery-app') }}"
+    image_tag: "{{ image_tag | default('latest') }}"
+  tasks:
+    - name: Copy Docker image tar to node
+      copy:
+        src: "/tmp/{{ image_name }}.tar"
+        dest: "/tmp/{{ image_name }}.tar"
+        mode: '0644'
+    - name: Load Docker image on node using containerd
+      block:
+        - name: Check if containerd is available
+          command: which ctr
+          register: ctr_check
+          ignore_errors: yes
+        - name: Import image into containerd (k8s.io namespace)
+          command: ctr -n k8s.io images import /tmp/{{ image_name }}.tar
+          when: ctr_check.rc == 0
+        - name: Fallback - load image with Docker if containerd not available
+          command: docker load -i /tmp/{{ image_name }}.tar
+          when: ctr_check.rc != 0
+    - name: Clean up Docker image tar
+      file:
+        path: "/tmp/{{ image_name }}.tar"
+        state: absent
+
+- name: Apply Kubernetes manifests on master
+  hosts: kube_master
+  become: yes
+  tasks:
+    - name: Copy k8s manifests from DevOps to master
+      copy:
+        src: "/ecns_projects/myapp/k8s/"
+        dest: "/ecns_projects/myapp/k8s/"
+        mode: '0644'
+    - name: Deploy app manifests
+      command: kubectl apply -f /ecns_projects/myapp/k8s/
+    - name: Update django container image
+      command: kubectl set image deployment/django-bakery django={{ image_name }}:{{ image_tag }}
+    - name: Update run-migrations init container image
+      command: kubectl set image deployment/django-bakery run-migrations={{ image_name }}:{{ image_tag }}
+    - name: Update run-collectstatic init container image
+      command: kubectl set image deployment/django-bakery run-collectstatic={{ image_name }}:{{ image_tag }}
+    - name: Restart deployment to pick up new config
+      command: kubectl rollout restart deployment/django-bakery
+    - name: Wait for rollout to complete
+      command: kubectl rollout status deployment/django-bakery
+      timeout: 300

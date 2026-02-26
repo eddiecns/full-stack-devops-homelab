@@ -1,0 +1,81 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Customer Report Preview{% endblock %}
+
+{% block admin_content %}
+
+<!-- Top Toolbar -->
+<div class="d-flex justify-content-end mb-3 no-print">
+    <a href="{% url 'admin_reports' %}" class="btn btn-outline-secondary btn-sm me-2">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm me-2">
+        <i class="bi bi-printer"></i> Print
+    </button>
+    <a href="{% url 'admin_report_download' report_id %}?start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-download"></i> Download PDF
+    </a>
+</div>
+
+<!-- Printable Area -->
+<div class="printable-area p-4 border bg-white">
+    <div class="text-center mb-4">
+        <img src="{% static 'images/logo.png' %}" alt="Nyarie's Bakery Logo" style="height: 80px;">
+        <h2 class="mt-2"><strong>Nyarie's Bakery</strong></h2>
+        <p class="text-muted mb-0">Admin Analytics — Customer Spending Report</p>
+        <small>{{ start_date }} to {{ end_date }}</small>
+    </div>
+
+    <h4 class="mt-4 mb-3"><i class="bi bi-people me-2"></i>Top Customers</h4>
+
+    {% if customer_sales %}
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>Total Orders</th>
+                <th>Total Spent</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in customer_sales %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ c.customer_name }}</td>
+                <td>{{ c.order_count }}</td>
+                <td>R{{ c.total_spent|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center py-4 text-muted">
+        <i class="bi bi-inbox" style="font-size: 2rem; opacity: 0.4;"></i>
+        <p class="mt-2">No customer data found for this date range.</p>
+    </div>
+    {% endif %}
+
+    <p class="mt-4 mb-0 text-muted">
+        <small>Report generated on {{ now|date:"Y-m-d H:i" }} by {{ request.user.username }}</small>
+    </p>
+</div>
+
+<!-- Bottom Toolbar -->
+<div class="d-flex justify-content-start mt-4 no-print">
+    <a href="{% url 'admin_reports' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Reports
+    </a>
+</div>
+
+<style>
+@media print {
+    body * { visibility: hidden; }
+    .printable-area, .printable-area * { visibility: visible; }
+    .printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+    .no-print { display: none !important; }
+}
+</style>
+
+{% endblock %}

@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI/CD Pipeline Architecture</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --green: #10b981;
+    --text: #e2e8f0;
+    --muted: #64748b;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: 'Syne', sans-serif;
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .header .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .header h1 {
+    font-size: clamp(22px, 4vw, 36px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 60%, #7c3aed 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .header .subtitle {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+
+  /* Terraform bar */
+  .terraform-bar {
+    background: var(--surface);
+    border: 1px solid #7b2ff7;
+    border-radius: 10px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease 0.1s both;
+  }
+  .terraform-bar .icon { font-size: 20px; }
+  .terraform-bar .text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: #c084fc;
+  }
+  .terraform-bar .text strong { color: #e879f9; }
+
+  /* Pipeline */
+  .section-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .pipeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 36px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+  }
+
+  .stage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .stage:nth-child(1) { animation-delay: 0.15s; }
+  .stage:nth-child(3) { animation-delay: 0.25s; }
+  .stage:nth-child(5) { animation-delay: 0.35s; }
+  .stage:nth-child(7) { animation-delay: 0.45s; }
+
+  .stage-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 14px;
+    width: 128px;
+    text-align: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+
+  .stage-box:hover { transform: translateY(-4px); }
+  .stage-box .icon { font-size: 26px; margin-bottom: 7px; display: block; }
+  .stage-box .tool {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 3px;
+    color: var(--accent);
+  }
+  .stage-box .name { font-size: 13px; font-weight: 700; }
+  .stage-box .desc { font-size: 10px; color: var(--muted); margin-top: 3px; line-height: 1.4; }
+
+  .stage-box.dev   { border-color: #7c3aed; } .stage-box.dev .tool   { color: #a78bfa; }
+  .stage-box.dev:hover { box-shadow: 0 0 24px rgba(124,58,237,0.2); }
+
+  .stage-box.gitlab { border-color: #fc6d26; } .stage-box.gitlab .tool { color: #fb923c; }
+  .stage-box.gitlab:hover { box-shadow: 0 0 24px rgba(252,109,38,0.2); }
+
+  .stage-box.jenkins { border-color: #d33833; } .stage-box.jenkins .tool { color: #f87171; }
+  .stage-box.jenkins:hover { box-shadow: 0 0 24px rgba(211,56,51,0.2); }
+
+  .stage-box.ansible { border-color: #cc0000; } .stage-box.ansible .tool { color: #fca5a5; }
+  .stage-box.ansible:hover { box-shadow: 0 0 24px rgba(204,0,0,0.2); }
+
+  .arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    margin-bottom: 28px;
+  }
+  .arrow-line {
+    width: 28px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--border), var(--accent));
+    position: relative;
+  }
+  .arrow-line::after {
+    content: '▶';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--accent);
+    font-size: 9px;
+  }
+
+  .stage-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 10px 0 28px;
+  }
+
+  /* Kubernetes cluster */
+  .k8s-cluster {
+    border: 1.5px dashed #326ce5;
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+    margin-bottom: 28px;
+    animation: fadeUp 0.6s ease 0.6s both;
+    background: rgba(50, 108, 229, 0.03);
+  }
+
+  .k8s-cluster-label {
+    position: absolute;
+    top: -13px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bg);
+    padding: 2px 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: #326ce5;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    border: 1px solid #326ce5;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+
+  .k8s-inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .nodes-col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .node-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+  }
+
+  .node-card:hover {
+    transform: translateX(3px);
+    border-color: var(--green);
+    box-shadow: 0 0 16px rgba(16,185,129,0.1);
+  }
+
+  .node-card .icon { font-size: 20px; }
+  .node-card .info .tool {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--green);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .node-card .info .name { font-size: 12px; font-weight: 700; }
+  .node-card .info .desc { font-size: 10px; color: var(--muted); }
+
+  /* NGINX center */
+  .nginx-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nginx-box {
+    background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    width: 88px;
+    height: 88px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(0,212,255,0.25);
+    animation: pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(0,212,255,0.25); }
+    50% { box-shadow: 0 0 50px rgba(0,212,255,0.45); }
+  }
+
+  .nginx-box .icon { font-size: 22px; }
+  .nginx-box .name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .nginx-box .role { font-size: 8px; color: var(--muted); text-align: center; }
+
+  .nginx-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  .route-label {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+  }
+
+  /* DB section */
+  .db-section {
+    display: flex;
+    justify-content: center;
+    animation: fadeUp 0.6s ease 0.75s both;
+  }
+
+  .db-card {
+    background: var(--surface);
+    border: 1px solid #f59e0b;
+    border-radius: 10px;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 280px;
+    transition: box-shadow 0.2s;
+  }
+
+  .db-card:hover {
+    box-shadow: 0 0 20px rgba(245,158,11,0.15);
+  }
+
+  .db-card .icon { font-size: 26px; }
+  .db-card .info .tool {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: #f59e0b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .db-card .info .name { font-size: 14px; font-weight: 700; }
+  .db-card .info .desc { font-size: 10px; color: var(--muted); }
+
+  .db-connector {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    margin: 8px 0;
+  }
+
+  /* Tags */
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 36px;
+    animation: fadeUp 0.6s ease 0.9s both;
+  }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: var(--surface);
+    letter-spacing: 0.5px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="label">Architecture Diagram</div>
+    <h1>End-to-End CI/CD Pipeline</h1>
+    <div class="subtitle">Django Web App · Kubernetes-Managed Multi-Node Deployment</div>
+  </div>
+
+  <div class="terraform-bar">
+    <span class="icon">🏗️</span>
+    <span class="text"><strong>Terraform</strong> — Provisions all infrastructure as code: VMs, networking, and node configuration before anything runs</span>
+  </div>
+
+  <div class="section-title">CI/CD Flow</div>
+
+  <div class="pipeline">
+
+    <div class="stage">
+      <div class="stage-box dev">
+        <span class="icon">💻</span>
+        <div class="tool">PyCharm</div>
+        <div class="name">Local Dev</div>
+        <div class="desc">Django app written & tested locally</div>
+      </div>
+      <div class="stage-label">1 · Develop</div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="stage">
+      <div class="stage-box gitlab">
+        <span class="icon">🦊</span>
+        <div class="tool">GitLab</div>
+        <div class="name">Source Control</div>
+        <div class="desc">Push triggers webhook to Jenkins</div>
+      </div>
+      <div class="stage-label">2 · Push</div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="stage">
+      <div class="stage-box jenkins">
+        <span class="icon">⚙️</span>
+        <div class="tool">Jenkins</div>
+        <div class="name">CI Build</div>
+        <div class="desc">Builds fresh Docker image (no cache)</div>
+      </div>
+      <div class="stage-label">3 · Build</div>
+    </div>
+
+    <div class="arrow"><div class="arrow-line"></div></div>
+
+    <div class="stage">
+      <div class="stage-box ansible">
+        <span class="icon">📦</span>
+        <div class="tool">Ansible</div>
+        <div class="name">Bootstrap K8s</div>
+        <div class="desc">Configures Kubernetes cluster on VMs</div>
+      </div>
+      <div class="stage-label">4 · Configure</div>
+    </div>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Kubernetes Cluster -->
+  <div class="section-title">Production Cluster</div>
+
+  <div class="k8s-cluster">
+    <div class="k8s-cluster-label">⎈ Kubernetes Cluster — manages & orchestrates containers</div>
+
+    <div class="k8s-inner">
+
+      <div class="nodes-col">
+        <div class="node-card">
+          <span class="icon">🐳</span>
+          <div class="info">
+            <div class="tool">App Node 1</div>
+            <div class="name">Django Pod</div>
+            <div class="desc">Managed by Kubernetes</div>
+          </div>
+        </div>
+        <div class="node-card">
+          <span class="icon">🐳</span>
+          <div class="info">
+            <div class="tool">App Node 2</div>
+            <div class="name">Django Pod</div>
+            <div class="desc">Managed by Kubernetes</div>
+          </div>
+        </div>
+        <div class="node-card">
+          <span class="icon">🐳</span>
+          <div class="info">
+            <div class="tool">App Node 3</div>
+            <div class="name">Django Pod</div>
+            <div class="desc">Managed by Kubernetes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="nginx-center">
+        <div class="route-label">← routes traffic →</div>
+        <div class="nginx-box">
+          <span class="icon">🌐</span>
+          <div class="name">NGINX</div>
+          <div class="role">Reverse Proxy<br>Load Balancer</div>
+        </div>
+        <div class="nginx-label">Ingress · Entry Point</div>
+        <div class="route-label" style="margin-top:6px;">← queries DB →</div>
+      </div>
+
+      <div class="nodes-col" style="align-items:flex-start;">
+        <div style="background: rgba(50,108,229,0.06); border: 1px dashed #326ce5; border-radius:10px; padding:12px 14px; font-family:'JetBrains Mono',monospace; font-size:10px; color:#93c5fd; line-height:1.8;">
+          <div style="color:#326ce5; font-weight:700; margin-bottom:6px;">⎈ K8s Handles:</div>
+          <div>✓ Self-healing pods</div>
+          <div>✓ Rolling deployments</div>
+          <div>✓ Container scheduling</div>
+          <div>✓ Service discovery</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- DB -->
+  <div class="db-connector">↕ App nodes connect to dedicated database</div>
+  <div class="db-section">
+    <div class="db-card">
+      <span class="icon">🗄️</span>
+      <div class="info">
+        <div class="tool">Dedicated Database Node</div>
+        <div class="name">MySQL</div>
+        <div class="desc">Standalone DB server · provisioned by Terraform + Ansible</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tags">
+    <span class="tag">Terraform</span>
+    <span class="tag">GitLab</span>
+    <span class="tag">Jenkins</span>
+    <span class="tag">Docker</span>
+    <span class="tag">Ansible</span>
+    <span class="tag">Kubernetes</span>
+    <span class="tag">NGINX</span>
+    <span class="tag">Django</span>
+    <span class="tag">MySQL</span>
+    <span class="tag">CI/CD</span>
+    <span class="tag">IaC</span>
+  </div>
+
+</div>
+</body>
+</html>

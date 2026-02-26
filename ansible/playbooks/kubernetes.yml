@@ -1,0 +1,11 @@
+- hosts: all
+  roles:
+    - common
+
+- hosts: kube_master
+  roles:
+    - kube-master
+
+- hosts: kube_node
+  roles:
+    - kube-node

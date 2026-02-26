@@ -1,0 +1,74 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Customer Details{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-eye me-2"></i>Customer Details</h2>
+    <p>View-only details for customer: <strong>{{ customer.username }}</strong></p>
+</div>
+
+<div class="admin-card p-4 mt-3">
+    <table class="table table-striped">
+        <tr>
+            <th>ID</th>
+            <td>{{ customer.id }}</td>
+        </tr>
+        <tr>
+            <th>Username</th>
+            <td>{{ customer.username }}</td>
+        </tr>
+        <tr>
+            <th>First Name</th>
+            <td>{{ customer.first_name }}</td>
+        </tr>
+        <tr>
+            <th>Last Name</th>
+            <td>{{ customer.last_name }}</td>
+        </tr>
+        <tr>
+            <th>Email</th>
+            <td>{{ customer.email }}</td>
+        </tr>
+        <tr>
+            <th>Phone</th>
+            <td>{{ profile.phone }}</td>
+        </tr>
+        <tr>
+            <th>Mobile</th>
+            <td>{{ profile.mobile }}</td>
+        </tr>
+        <tr>
+            <th>Delivery Address</th>
+            <td>{{ profile.delivery_address }}</td>
+        </tr>
+        <tr>
+            <th>Payment Method</th>
+            <td>{{ profile.payment_method }}</td>
+        </tr>
+
+        <tr>
+            <th>Status</th>
+            <td>
+                {% if customer.is_active %}
+                    <span class="badge bg-success">Active</span>
+                {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th>Joined On</th>
+            <td>{{ customer.date_joined|date:"F j, Y, g:i a" }}</td>
+        </tr>
+    </table>
+
+    <a href="{% url 'admin_customer_edit' customer.id %}" class="btn btn-primary mt-3">
+        <i class="bi bi-pencil me-1"></i> Edit Customer
+    </a>
+    <a href="{% url 'admin_customers' %}" class="btn btn-secondary mt-3 ms-2">
+        <i class="bi bi-arrow-left-circle me-1"></i> Back to Customers
+    </a>
+</div>
+{% endblock %}

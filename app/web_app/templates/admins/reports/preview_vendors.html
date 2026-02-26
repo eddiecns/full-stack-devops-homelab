@@ -1,0 +1,85 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Vendor Report Preview{% endblock %}
+
+{% block admin_content %}
+
+<div class="d-flex justify-content-end mb-3 no-print">
+    <a href="{% url 'admin_reports' %}" class="btn btn-outline-secondary btn-sm me-2">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+    <button onclick="window.print()" class="btn btn-outline-secondary btn-sm me-2">
+        <i class="bi bi-printer"></i> Print
+    </button>
+    <a href="{% url 'admin_report_download' report_id %}?start_date={{ start_date }}&end_date={{ end_date }}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-download"></i> Download PDF
+    </a>
+</div>
+
+<!-- Printable Area -->
+<div class="printable-area p-4 border bg-white">
+
+    <!-- Header -->
+    <div class="text-center mb-4">
+        <img src="{% static 'images/logo.png' %}" alt="Nyarie's Bakery Logo" style="height: 80px;">
+        <h2 class="mt-2"><strong>Nyarie's Bakery</strong></h2>
+        <p class="text-muted mb-0">Admin Analytics — Vendor Report</p>
+        <small>{{ start_date }} to {{ end_date }}</small>
+    </div>
+
+    <!-- Report Title -->
+    <h4 class="mt-4 mb-3"><i class="bi bi-shop me-2"></i>Top Performing Vendors</h4>
+
+    {% if vendor_sales %}
+    <table class="table table-bordered align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Vendor Name</th>
+                <th>Total Sales</th>
+                <th>Orders Handled</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in vendor_sales %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ v.vendor_name }}</td>
+                <td>R{{ v.total_sales|floatformat:2 }}</td>
+                <td>{{ v.orders|length }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-center py-4 text-muted">
+        <i class="bi bi-inbox" style="font-size: 2rem; opacity: 0.4;"></i>
+        <p class="mt-2">No vendor data found for this date range.</p>
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <p class="mt-4 mb-0 text-muted">
+        <small>Report generated on {{ now|date:"Y-m-d H:i" }} by {{ request.user.username }}</small>
+    </p>
+
+</div>
+
+<!-- Bottom Back Button -->
+<div class="d-flex justify-content-start mt-4 no-print">
+    <a href="{% url 'admin_reports' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Reports
+    </a>
+</div>
+
+<style>
+@media print {
+    body * { visibility: hidden; }
+    .printable-area, .printable-area * { visibility: visible; }
+    .printable-area { position: absolute; left: 0; top: 0; width: 100%; }
+    .no-print { display: none !important; }
+}
+</style>
+
+{% endblock %}

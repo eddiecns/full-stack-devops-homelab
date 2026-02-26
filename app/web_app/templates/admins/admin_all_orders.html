@@ -1,0 +1,133 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}All Orders - Admin{% endblock %}
+
+{% block admin_content %}
+
+<div class="admin-header">
+    <h2><i class="bi bi-cart-check me-2"></i>All Orders</h2>
+    <p>View and manage all customer orders</p>
+</div>
+
+<!-- Filter Options -->
+<div class="admin-chart-container mb-4">
+    <form method="get" class="row g-3">
+        <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Search orders..." value="{{ request.GET.search }}">
+        </div>
+        <div class="col-md-3">
+            <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="processing" {% if request.GET.status == 'processing' %}selected{% endif %}>Processing</option>
+                <option value="completed" {% if request.GET.status == 'completed' %}selected{% endif %}>Completed</option>
+                <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <input type="date" name="date" class="form-control" value="{{ request.GET.date }}">
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-admin-primary w-100">
+                <i class="bi bi-funnel me-2"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Orders Table -->
+<div class="admin-table">
+    {% if orders %}
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Products</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td>{{ order.user.username }}</td>
+                    <td>
+                        {% for item in order.orderitem_set.all %}
+                            <div>{{ item.product.name }} x {{ item.quantity }}</div>
+                        {% endfor %}
+                    </td>
+                    <td>R{{ order.total_price|floatformat:2 }}</td>
+                    <td>
+                        {% if order.status == "pending" %}
+                            <span class="badge admin-badge pending">Pending</span>
+                        {% elif order.status == "processing" %}
+                            <span class="badge admin-badge info">Processing</span>
+                        {% elif order.status == "completed" %}
+                            <span class="badge admin-badge active">Completed</span>
+                        {% elif order.status == "cancelled" %}
+                            <span class="badge admin-badge inactive">Cancelled</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ order.created_at|date:"d M Y H:i" }}</td>
+                    <td>
+                        <div class="admin-action-icons">
+                            <a href="{% url 'admin_order_detail' order.id %}" class="btn-view" title="View Details">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'admin_order_edit' order.id %}" class="btn-edit" title="Edit Order">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'admin_order_delete' order.id %}" class="btn-delete" title="Delete Order">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-4">No orders found</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if orders.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if orders.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ orders.previous_page_number }}">Previous</a>
+            </li>
+            {% endif %}
+
+            {% for num in orders.paginator.page_range %}
+                <li class="page-item {% if orders.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+            {% endfor %}
+
+            {% if orders.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ orders.next_page_number }}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% else %}
+    <div class="admin-alert info">
+        <i class="bi bi-info-circle"></i>
+        No orders found.
+    </div>
+    {% endif %}
+</div>
+
+{% endblock admin_content %}

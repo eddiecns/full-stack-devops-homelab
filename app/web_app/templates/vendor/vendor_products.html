@@ -1,0 +1,125 @@
+{% extends "base_vendor.html" %}
+{% load static %}
+
+{% block title %}My Products{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+{% endblock %}
+
+{% block vendor_content %}
+
+<div class="profile-header">
+    <h2><i class="bi bi-box-seam me-2"></i> My Products</h2>
+    <p>Quick overview of your product catalog</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="profile-card">
+
+            {% if products %}
+                <!-- Quick Stats -->
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="customer-stat-card stat-card-compact">
+                            <div class="stat-icon stat-products">
+                                <i class="bi bi-box2"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6>Total Products</h6>
+                                <p class="stat-value">{{ products|length }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="customer-stat-card stat-card-compact">
+                            <div class="stat-icon stat-orders">
+                                <i class="bi bi-grid"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6>Categories</h6>
+                                <p class="stat-value">{{ categories_count|default:"—" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="customer-stat-card stat-card-compact">
+                            <div class="stat-icon stat-revenue">
+                                <i class="bi bi-currency-dollar"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h6>Avg. Price</h6>
+                                <p class="stat-value">R{{ avg_price|default:"0" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Table -->
+                <div class="table-responsive">
+                    <table class="table activity-table simple-products-table">
+                        <thead>
+                            <tr>
+                                <th><i class="bi bi-tag me-2"></i>Product Name</th>
+                                <th><i class="bi bi-grid me-2"></i>Category</th>
+                                <th><i class="bi bi-currency-dollar me-2"></i>Price</th>
+                                <th><i class="bi bi-stack me-2"></i>Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in products %}
+                            <tr class="activity-row simple-product-row">
+                                <td class="product-name-cell">
+                                    <div class="product-info-simple">
+                                        <div class="product-icon-small">
+                                        </div>
+                                        <strong>{{ product.name }}</strong>
+                                    </div>
+                                </td>
+                                <td class="category-cell">
+                                    <span class="category-badge-simple">
+                                        {{ product.category.name }}
+                                    </span>
+                                </td>
+                                <td class="price-cell">
+                                    <strong>R{{ product.price }}</strong>
+                                </td>
+                                <td class="stock-cell">
+                                    <span class="stock-indicator-simple
+                                        {% if product.stock_quantity == 0 %}stock-zero
+                                        {% elif product.stock_quantity < 5 %}stock-low
+                                        {% else %}stock-good
+                                        {% endif %}">
+                                        {{ product.stock_quantity }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Action Button -->
+                <div class="text-center mt-4">
+                    <a href="{% url 'add_product' %}" class="btn-browse">
+                        <i class="bi bi-plus-circle me-2"></i> Add New Product
+                    </a>
+                </div>
+
+            {% else %}
+                <!-- Empty State -->
+                <div class="empty-state">
+                    <i class="bi bi-box-seam"></i>
+                    <h4>No Products Yet</h4>
+                    <p>You haven't added any products to your catalog yet. Start building your product inventory!</p>
+                    <a href="{% url 'add_product' %}" class="btn-browse">Add Your First Product
+                    </a>
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}

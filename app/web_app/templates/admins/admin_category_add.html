@@ -1,0 +1,51 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Add Category - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-plus-circle me-2"></i>Add Category</h2>
+    <p>Create a new product category</p>
+</div>
+
+<div class="admin-card">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            <label for="id_name" class="form-label">Category Name</label>
+            {{ form.name }}
+            {{ form.name.errors }}
+        </div>
+
+        <div class="mb-3">
+            <label for="id_image" class="form-label">Category Image</label>
+
+            {% if form.instance.image %}
+                <div class="mb-2">
+                    <img src="{{ form.instance.image.url }}" alt="Current image" style="max-width: 200px; max-height: 200px;" class="img-thumbnail">
+                    <p class="text-muted small mt-1">Current image (will be replaced if you upload a new one)</p>
+                </div>
+            {% endif %}
+
+            {{ form.image }}
+            {{ form.image.errors }}
+            <small class="form-text text-muted">
+                Accepts: JPG, PNG, JPEG, WebP, GIF (any image format)
+                {% if form.instance.image %}
+                <br><strong>Note:</strong> Uploading a new image will replace the current one
+                {% endif %}
+            </small>
+        </div>
+
+        <button type="submit" class="btn btn-admin-primary">
+            <i class="bi bi-check-circle me-2"></i>{% if form.instance.pk %}Update{% else %}Add{% endif %} Category
+        </button>
+        <a href="{% url 'admin_categories' %}" class="btn btn-admin-secondary ms-2">
+            <i class="bi bi-x-circle me-2"></i>Cancel
+        </a>
+    </form>
+</div>
+{% endblock %}

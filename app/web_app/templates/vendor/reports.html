@@ -1,0 +1,146 @@
+{% extends "base_vendor.html" %}
+{% load static %}
+
+{% block title %}Sales Reports{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/vendor.css' %}">
+{% endblock %}
+
+{% block vendor_content %}
+<div class="profile-header">
+    <h2><i class="bi bi-bar-chart-line me-2"></i> Sales Reports</h2>
+    <p>View and analyze your sales performance over different time periods</p>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="profile-card">
+
+            <!-- Period Filter Section -->
+            <div class="form-section">
+                <div class="section-title">
+                    <i class="bi bi-calendar-range"></i> Select Report Period
+                </div>
+
+                <form method="get" class="period-filter-form">
+                    <div class="row align-items-center g-3">
+                        <div class="col-md-6">
+                            <label for="period" class="form-label">Time Period:</label>
+                            <select name="period" id="period" class="form-select" onchange="this.form.submit()">
+                                <option value="all" {% if period == "all" %}selected{% endif %}>All Time</option>
+                                <option value="day" {% if period == "day" %}selected{% endif %}>Today</option>
+                                <option value="week" {% if period == "week" %}selected{% endif %}>This Week</option>
+                                <option value="month" {% if period == "month" %}selected{% endif %}>This Month</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-funnel me-2"></i> Apply Filter
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            {% if sales %}
+            <!-- Summary Section -->
+            <div class="form-section mt-3">
+                <div class="report-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="mb-0">Total Sales
+                            <span class="period-badge">
+                                {% if period == "day" %}Today{% elif period == "week" %}This Week{% elif period == "month" %}This Month{% else %}All Time{% endif %}
+                            </span>
+                        </h4>
+                        <p class="total-amount">R{{ total_sales|floatformat:2 }}</p>
+                    </div>
+                    <div class="report-actions">
+                        <a href="{% url 'print_report' %}?period={{ period }}" target="_blank" class="btn btn-secondary me-2">
+                            <i class="bi bi-printer me-1"></i> Print
+                        </a>
+                        <a href="{% url 'download_report' %}?period={{ period }}" class="btn btn-secondary">
+                            <i class="bi bi-download me-1"></i> Download
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sales Table -->
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered table-striped sales-table">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order #</th>
+                            <th>Product</th>
+                            <th class="text-end">Quantity</th>
+                            <th class="text-end">Price (Each)</th>
+                            <th class="text-end">Subtotal</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in sales %}
+                        <tr>
+                            <td>Order: {{ item.order.id }}</td>
+                            <td>{{ item.product.name }}</td>
+                            <td class="text-end">{{ item.quantity }}</td>
+                            <td class="text-end">R{{ item.price|floatformat:2 }}</td>
+                            <td class="text-end"><strong>R{{ item.calculated_subtotal|floatformat:2 }}</strong></td>
+                            <td>{{ item.order.created_at|date:"Y-m-d H:i" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th colspan="4" class="text-end">Total ({{ period|title }})</th>
+                            <th colspan="2" class="text-end">R{{ total_sales|floatformat:2 }}</th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if sales.has_other_pages %}
+            <nav class="mt-3">
+                <ul class="pagination justify-content-center">
+                    {% if sales.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ sales.previous_page_number }}&period={{ period }}">Previous</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                    {% endif %}
+
+                    {% for num in sales.paginator.page_range %}
+                        {% if sales.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}&period={{ period }}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if sales.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ sales.next_page_number }}&period={{ period }}">Next</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="empty-state text-center mt-5">
+                <i class="bi bi-inbox display-1 mb-3"></i>
+                <h4>No Sales Data Available</h4>
+                <p>No sales were found for the selected period. Try choosing a different time range.</p>
+                <a href="{% url 'vendor_products' %}" class="btn btn-primary">Manage Products</a>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

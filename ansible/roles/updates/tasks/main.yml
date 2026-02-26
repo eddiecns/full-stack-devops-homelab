@@ -1,0 +1,11 @@
+- name: Update all packages
+  dnf:
+    name: "*"
+    state: latest
+    update_cache: yes
+
+- name: Upgrade all packages
+  dnf:
+    name: "*"
+    state: latest
+    update_cache: yes

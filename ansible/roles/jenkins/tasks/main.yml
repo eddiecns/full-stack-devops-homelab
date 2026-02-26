@@ -1,0 +1,140 @@
+---
+# roles/jenkins/tasks/main.yml
+
+- name: Update dnf cache
+  ansible.builtin.dnf:
+    update_cache: yes
+  tags:
+    - jenkins
+    - setup
+
+- name: Install Java 11
+  ansible.builtin.dnf:
+    name: java-11-openjdk-devel
+    state: present
+  tags:
+    - jenkins
+    - setup
+
+- name: Clean DNF cache
+  ansible.builtin.command: dnf clean all
+  changed_when: false
+  tags:
+    - jenkins
+    - setup
+
+- name: Remove old Jenkins GPG keys if present
+  ansible.builtin.rpm_key:
+    state: absent
+    key: "{{ item }}"
+  loop:
+    - https://pkg.jenkins.io/redhat-stable/jenkins.io.key
+    - https://pkg.jenkins.io/redhat/jenkins.io.key
+  ignore_errors: yes
+  tags:
+    - jenkins
+    - setup
+
+- name: Import Jenkins GPG key to RPM database
+  ansible.builtin.rpm_key:
+    state: present
+    key: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+  tags:
+    - jenkins
+    - setup
+
+- name: Verify Jenkins GPG key was imported
+  ansible.builtin.command: rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'
+  register: gpg_keys
+  changed_when: false
+  tags:
+    - jenkins
+    - setup
+
+- name: Display imported GPG keys
+  ansible.builtin.debug:
+    msg: "{{ gpg_keys.stdout_lines }}"
+  tags:
+    - jenkins
+    - setup
+
+- name: Add Jenkins repository
+  ansible.builtin.yum_repository:
+    name: jenkins
+    description: Jenkins-stable
+    baseurl: https://pkg.jenkins.io/redhat-stable
+    gpgcheck: yes
+    gpgkey: https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
+    enabled: yes
+  tags:
+    - jenkins
+    - setup
+
+- name: Refresh DNF cache after adding repository
+  ansible.builtin.dnf:
+    update_cache: yes
+  tags:
+    - jenkins
+    - setup
+
+- name: Install Jenkins
+  ansible.builtin.dnf:
+    name: jenkins
+    state: present
+  register: jenkins_install
+  tags:
+    - jenkins
+    - install
+
+- name: Display Jenkins installation result
+  ansible.builtin.debug:
+    msg: "Jenkins installation status: {{ 'Success' if jenkins_install.changed else 'Already installed' }}"
+  tags:
+    - jenkins
+    - install
+
+- name: Ensure Jenkins service is enabled and started
+  ansible.builtin.systemd:
+    name: jenkins
+    state: started
+    enabled: yes
+  tags:
+    - jenkins
+    - service
+
+- name: Wait for Jenkins to start
+  ansible.builtin.wait_for:
+    port: 8080
+    delay: 10
+    timeout: 60
+  tags:
+    - jenkins
+    - service
+
+- name: Get Jenkins initial admin password
+  ansible.builtin.slurp:
+    src: /var/lib/jenkins/secrets/initialAdminPassword
+  register: jenkins_admin_password
+  ignore_errors: yes
+  tags:
+    - jenkins
+    - service
+
+- name: Display Jenkins initial admin password
+  ansible.builtin.debug:
+    msg: "Jenkins initial admin password: {{ jenkins_admin_password.content | b64decode }}"
+  when: jenkins_admin_password is succeeded
+  tags:
+    - jenkins
+    - service
+
+- name: Display Jenkins access information
+  ansible.builtin.debug:
+    msg:
+      - "================================================================"
+      - "Jenkins has been successfully installed and started!"
+      - "Access Jenkins at: http://{{ ansible_default_ipv4.address }}:8080"
+      - "================================================================"
+  tags:
+    - jenkins
+    - service

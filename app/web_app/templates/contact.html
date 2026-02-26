@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Contact Us{% endblock %}
+
+{% block extra_css %}
+<!-- Contact page specific CSS -->
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<div class="hero-section hero-contact d-flex align-items-center justify-content-center">
+    <div class="hero-content text-center text-white px-4">
+        <h1 class="animate-fade-in">Contact Us</h1>
+        <p class="animate-fade-in" style="animation-delay: 0.2s;">We'd love to hear from you!</p>
+    </div>
+</div>
+
+<!-- Contact Section -->
+<section class="contact-section">
+    <div class="container">
+        <div class="contact-card">
+            <div class="row g-0">
+                <!-- Contact Form -->
+                <div class="col-lg-7 animate-slide-left">
+                    <div class="form-section">
+                        <h3>Send Us a Message</h3>
+                        <form method="post" action="#">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label for="name" class="form-label">Your Name</label>
+                                <input type="text" class="form-control" id="name" name="name" placeholder="Enter your full name" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="email" class="form-label">Your Email</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="your.email@example.com" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="subject" class="form-label">Subject</label>
+                                <input type="text" class="form-control" id="subject" name="subject" placeholder="What is this about?" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="message" class="form-label">Message</label>
+                                <textarea class="form-control" id="message" name="message" rows="5" placeholder="Tell us what's on your mind..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn-brown">Send Message</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Contact Info -->
+                <div class="col-lg-5 animate-slide-right">
+                    <div class="info-section">
+                        <h3>Get in Touch</h3>
+                        <p>
+                            Have questions about our platform or need support?
+                            Reach out and we'll get back to you as soon as possible.
+                        </p>
+
+                        <div class="contact-info-item">
+                            <i class="bi bi-envelope-fill"></i>
+                            <div>
+                                <strong>Email</strong>
+                                <span>support@ecns.co.za</span>
+                            </div>
+                        </div>
+
+                        <div class="contact-info-item">
+                            <i class="bi bi-telephone-fill"></i>
+                            <div>
+                                <strong>Cellphone</strong>
+                                <span>+27 71 971 5205</span>
+                            </div>
+                        </div>
+
+
+                        <div class="contact-info-item">
+                            <i class="bi bi-telephone-fill"></i>
+                            <div>
+                                <strong>Phone</strong>
+                                <span>+27 21 971 5205</span>
+                            </div>
+                        </div>
+
+                        <div class="contact-info-item">
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <div>
+                                <strong>Address</strong>
+                                <span>Parklands, Cape Town, South Africa</span>
+                            </div>
+                        </div>
+
+                        <div class="social-section">
+                            <h5>Follow Us</h5>
+                            <div class="social-links">
+                                <a href="#" title="Facebook"><i class="bi bi-facebook"></i></a>
+                                <a href="#" title="Twitter"><i class="bi bi-twitter"></i></a>
+                                <a href="#" title="Instagram"><i class="bi bi-instagram"></i></a>
+                                <a href="#" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

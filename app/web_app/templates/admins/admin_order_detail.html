@@ -1,0 +1,51 @@
+{% extends "admins/base_admin.html" %}
+{% load static %}
+
+{% block title %}Order Details - Admin{% endblock %}
+
+{% block admin_content %}
+<div class="admin-header">
+    <h2><i class="bi bi-eye me-2"></i>Order #{{ order.id }}</h2>
+    <p>View order details (read-only)</p>
+</div>
+
+<div class="admin-card p-4 mt-3">
+    <h5>Customer Information</h5>
+    <p><strong>Name:</strong> {{ order.user.get_full_name }}</p>
+    <p><strong>Email:</strong> {{ order.user.email }}</p>
+    <p><strong>Delivery Address:</strong> {{ order.delivery_address }}</p>
+    <p><strong>Payment Method:</strong> {{ order.payment_method|capfirst }}</p>
+
+    <hr>
+
+    <h5>Products in Order</h5>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Vendor</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in order.orderitem_set.all %}
+            <tr>
+                <td>{{ item.product.name }}</td>
+                <td>{{ item.product.vendor.username }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>R{{ item.price|floatformat:2 }}</td>
+                <td>R{{ item.subtotal|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr>
+    <p><strong>Total Price:</strong> R{{ order.total_price|floatformat:2 }}</p>
+    <p><strong>Status:</strong> {{ order.status|capfirst }}</p>
+
+    <a href="{% url 'admin_all_orders' %}" class="btn btn-admin-primary mt-3">Back to Orders</a>
+</div>
+{% endblock %}
