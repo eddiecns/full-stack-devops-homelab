@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: django-bakery
+spec:
+  selector:
+    app: django-bakery
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30914       # keep the existing port so nothing else breaks
+  type: NodePort
