@@ -1,6 +1,6 @@
 # Full-Stack DevOps Homelab
 
-> End-to-end DevOps pipeline built from scratch on a self-hosted homelab — from bare-metal VM provisioning to automated Kubernetes deployments with full CI/CD and monitoring.
+> End-to-end DevOps pipeline built from scratch on a self-hosted homelab from bare-metal VM provisioning to automated Kubernetes deployments with full CI/CD and monitoring.
 
 ---
 
@@ -194,9 +194,9 @@ The monitoring stack runs on a dedicated LXC (`192.168.1.10`) via Docker Compose
 ## Security Notes
 
 - Terraform authenticates to Proxmox via API token (not root password)
-- `terraform.tfvars` files are gitignored — use the provided `.example` files as templates
+- `terraform.tfvars` files are gitignored, use the provided `.example` files as templates
 - SSH key-only access across all managed hosts
-- `insecure = true` in the Proxmox provider is intentional for a home lab with a self-signed cert — do not replicate in production
+- `insecure = true` in the Proxmox provider is intentional for a home lab with a self-signed cert - do not replicate in production
 
 ---
 
